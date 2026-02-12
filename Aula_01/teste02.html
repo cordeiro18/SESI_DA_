@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Serpentário Solidário | Adoção de Cobras</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card: #111827;
+      --soft: #1f2937;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --accent: #34d399;
+      --accent-dark: #10b981;
+      --danger: #f43f5e;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      background: radial-gradient(circle at top, #1e293b, var(--bg));
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .container {
+      width: min(1100px, 92vw);
+      margin: 2rem auto 4rem;
+    }
+
+    header {
+      background: rgba(17, 24, 39, 0.8);
+      border: 1px solid #334155;
+      border-radius: 18px;
+      padding: 1.5rem;
+      backdrop-filter: blur(4px);
+    }
+
+    h1 { margin: 0; font-size: clamp(1.4rem, 2vw, 2rem); }
+    .subtitle { color: var(--muted); margin-top: 0.4rem; }
+
+    .controls {
+      margin-top: 1rem;
+      display: grid;
+      grid-template-columns: 1fr 200px;
+      gap: 0.8rem;
+    }
+
+    input, select {
+      width: 100%;
+      background: var(--soft);
+      color: var(--text);
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 0.7rem 0.8rem;
+      font-size: 0.95rem;
+    }
+
+    .grid {
+      margin-top: 1.3rem;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1rem;
+    }
+
+    .card {
+      background: rgba(17, 24, 39, 0.95);
+      border: 1px solid #334155;
+      border-radius: 14px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .thumb {
+      height: 140px;
+      background-size: cover;
+      background-position: center;
+      border-bottom: 1px solid #334155;
+    }
+
+    .content { padding: 0.9rem; }
+
+    .tag {
+      display: inline-block;
+      margin-bottom: 0.6rem;
+      padding: 0.25rem 0.55rem;
+      border-radius: 999px;
+      background: #064e3b;
+      color: #a7f3d0;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .meta {
+      color: var(--muted);
+      font-size: 0.9rem;
+      margin: 0.2rem 0 0.8rem;
+    }
+
+    button {
+      width: 100%;
+      padding: 0.65rem;
+      border: none;
+      border-radius: 10px;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--accent);
+      color: #052e16;
+      transition: transform 0.15s ease, background 0.15s ease;
+    }
+
+    button:hover { background: var(--accent-dark); transform: translateY(-1px); }
+
+    .adopted {
+      background: var(--danger);
+      color: #fff;
+      cursor: not-allowed;
+    }
+
+    .empty {
+      display: none;
+      margin-top: 1rem;
+      background: #3f1d2e;
+      color: #fecdd3;
+      border: 1px solid #9f1239;
+      padding: 1rem;
+      border-radius: 12px;
+    }
+
+    @media (max-width: 680px) {
+      .controls { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <header>
+      <h1>🐍 Serpentário Solidário</h1>
+      <p class="subtitle">Encontre uma cobra saudável, legalizada e pronta para ganhar um novo lar.</p>
+      <div class="controls">
+        <input id="search" type="text" placeholder="Pesquisar por nome, espécie ou temperamento..." />
+        <select id="filter">
+          <option value="todas">Todas as espécies</option>
+          <option value="jiboia">Jiboia</option>
+          <option value="milho">Cobra-do-milho</option>
+          <option value="real">Píton-real</option>
+          <option value="falsa-coral">Falsa-coral</option>
+        </select>
+      </div>
+    </header>
+
+    <section id="snakeGrid" class="grid"></section>
+    <p id="empty" class="empty">Nenhuma cobra encontrada. Tente outro termo de busca.</p>
+  </main>
+
+  <script>
+    const snakes = [
+      {
+        id: 1,
+        nome: "Luna",
+        especie: "milho",
+        especieLabel: "Cobra-do-milho",
+        idade: "2 anos",
+        temperamento: "Dócil",
+        foto: "https://images.unsplash.com/photo-1549480017-d76466a4b7e8?auto=format&fit=crop&w=900&q=80"
+      },
+      {
+        id: 2,
+        nome: "Gaia",
+        especie: "jiboia",
+        especieLabel: "Jiboia",
+        idade: "4 anos",
+        temperamento: "Calma",
+        foto: "https://images.unsplash.com/photo-1588449668365-d15e397f6787?auto=format&fit=crop&w=900&q=80"
+      },
+      {
+        id: 3,
+        nome: "Nox",
+        especie: "real",
+        especieLabel: "Píton-real",
+        idade: "3 anos",
+        temperamento: "Curiosa",
+        foto: "https://images.unsplash.com/photo-1531386151447-fd76ad50012f?auto=format&fit=crop&w=900&q=80"
+      },
+      {
+        id: 4,
+        nome: "Coralina",
+        especie: "falsa-coral",
+        especieLabel: "Falsa-coral",
+        idade: "1 ano",
+        temperamento: "Ativa",
+        foto: "https://images.unsplash.com/photo-1501700493788-fa1a4fc9fe62?auto=format&fit=crop&w=900&q=80"
+      }
+    ];
+
+    const adoptedIds = new Set();
+    const grid = document.getElementById("snakeGrid");
+    const empty = document.getElementById("empty");
+    const search = document.getElementById("search");
+    const filter = document.getElementById("filter");
+
+    function createCard(snake) {
+      const isAdopted = adoptedIds.has(snake.id);
+      return `
+        <article class="card">
+          <div class="thumb" style="background-image:url('${snake.foto}')"></div>
+          <div class="content">
+            <span class="tag">${snake.especieLabel}</span>
+            <h3>${snake.nome}</h3>
+            <p class="meta">Idade: ${snake.idade} · Temperamento: ${snake.temperamento}</p>
+            <button
+              data-id="${snake.id}"
+              class="${isAdopted ? "adopted" : ""}"
+              ${isAdopted ? "disabled" : ""}
+            >${isAdopted ? "Adotada ✅" : "Adotar"}</button>
+          </div>
+        </article>
+      `;
+    }
+
+    function render() {
+      const term = search.value.toLowerCase().trim();
+      const species = filter.value;
+
+      const filtered = snakes.filter((snake) => {
+        const fullText = `${snake.nome} ${snake.especieLabel} ${snake.temperamento}`.toLowerCase();
+        const matchesSearch = fullText.includes(term);
+        const matchesSpecies = species === "todas" || snake.especie === species;
+        return matchesSearch && matchesSpecies;
+      });
+
+      grid.innerHTML = filtered.map(createCard).join("");
+      empty.style.display = filtered.length ? "none" : "block";
+
+      grid.querySelectorAll("button[data-id]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          adoptedIds.add(Number(btn.dataset.id));
+          render();
+        });
+      });
+    }
+
+    search.addEventListener("input", render);
+    filter.addEventListener("change", render);
+    render();
+  </script>
+</body>
+</html>
