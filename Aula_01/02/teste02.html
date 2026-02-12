@@ -143,19 +143,19 @@
       <h1>adote um jogador</h1>
       <p class="subtitle">encontre seu jogador ideal e dê a ele um lar cheio de amor e gols</p>
       <div class="controls">
-        <input id="search" type="text" placeholder="Pesquisar por nome, espécie ou temperamento..." />
+        <input id="search" type="text" placeholder="escolhe ai." />
         <select id="filter">
           <option value="todas">Todas as espécies</option>
-          <option value="jiboia">Jiboia</option>
-          <option value="milho">Cobra-do-milho</option>
-          <option value="real">Píton-real</option>
-          <option value="falsa-coral">Falsa-coral</option>
+          <option value="">jogador gay</option>
+          <option value="">omiorrr</option>
+          <option value="">etezão</option>
+          <option value="">lesionado</option>
         </select>
       </div>
     </header>
 
     <section id="snakeGrid" class="grid"></section>
-    <p id="empty" class="empty">Nenhuma cobra encontrada. Tente outro termo de busca.</p>
+    <p id="empty" class="empty">nada.</p>
   </main>
 
   <script>
@@ -217,7 +217,7 @@
               data-id="${snake.id}"
               class="${isAdopted ? "adopted" : ""}"
               ${isAdopted ? "disabled" : ""}
-            >${isAdopted ? "Adotada ✅" : "Adotar"}</button>
+            >${isAdopted ? "contratado " : "contratar"}</button>
           </div>
         </article>
       `;
