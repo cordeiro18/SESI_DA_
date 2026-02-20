@@ -17,7 +17,7 @@ body {
 .menu img {
 
     width: 100px;
-    
+
     height: 100px;
     border-radius: 100%;
 }
@@ -27,5 +27,22 @@ body {
     font-size: 35px;
     font-weight: bold;
     text-transform: uppercase;
-    
+
+}
+
+.Pesquisa {
+
+    display: flex;
+    justify-content: center;
+    margin-top: 30px;
+
+}
+
+.Pesquisa input {
+
+    width: 350px;
+    border-radius: 50px;
+    font-size: 20px;
+    padding-left: 35px;
+
 }
