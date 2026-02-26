@@ -64,3 +64,22 @@ body {
 
 
 }
+
+
+.grupo-card{
+
+    display: flex;
+justify-content: center;
+
+
+}
+.card{
+
+width: 219px;
+height: 264px;
+margin:0px 50px 20px 10px;
+border-radius:  20px;
+
+
+
+}
