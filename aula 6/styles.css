@@ -70,6 +70,7 @@ body {
 
     display: flex;
 justify-content: center;
+margin-top:70px ;
 
 
 }
@@ -80,6 +81,13 @@ height: 264px;
 margin:0px 50px 20px 10px;
 border-radius:  20px;
 
+}
+
+.card p {
+
+color: white;
+font-size:40px;
+margin :200px 0px 0px 20px;
 
 
 }
