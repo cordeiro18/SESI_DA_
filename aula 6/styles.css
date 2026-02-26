@@ -66,31 +66,44 @@ body {
 }
 
 
-.grupo-card{
+.grupo-card {
 
     display: flex;
-justify-content: center;
-margin-top:70px ;
+    justify-content: center;
+    margin-top: 70px;
 
 
 }
-.card{
 
-width: 219px;
-height: 264px;
-margin:0px 50px 20px 10px;
-border-radius:  20px;
-background-size:cover ;
-background-position:center ;
+.card {
+
+    width: 219px;
+    height: 264px;
+    margin: 0px 50px 20px 10px;
+    border-radius: 20px;
+    background-size: cover;
+    background-position: center;
 
 
 }
 
 .card p {
 
-color: white;
-font-size:40px;
-margin :200px 0px 0px 20px;
+    color: white;
+    font-size: 40px;
+    margin: 200px 0px 0px 20px;
 
+
+}
+
+
+
+.banner {
+    background-color: black;
+    height: 35px;
+    width: 300px;
+    color: white;
+    font-size: 25px;
+    border-radius: 50px;
 
 }
