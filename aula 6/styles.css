@@ -17,7 +17,6 @@ body {
 .menu img {
 
     width: 100px;
-
     height: 100px;
     border-radius: 100%;
 }
@@ -40,31 +39,13 @@ body {
 
 .Pesquisa input {
 
+    height:50px ;
     width: 350px;
     border-radius: 50px;
     font-size: 20px;
     padding-left: 35px;
 
 }
-
-.fotos {
-
-    display: flex;
-    justify-content: center;
-    margin-top: 50px;
-
-}
-
-.fotos img {
-
-    width: 300px;
-    height: 500px;
-    border-radius: 50px;
-    margin: 20px;
-
-
-}
-
 
 .grupo-card {
 
@@ -83,7 +64,7 @@ body {
     border-radius: 20px;
     background-size: cover;
     background-position: center;
-
+    
 
 }
 
@@ -95,8 +76,6 @@ body {
 
 
 }
-
-
 
 
 
@@ -119,14 +98,14 @@ body {
 
 .card-banner {
 
-    height: 320px;
+   background-color: #e9e9e9;
+    height: 80%;
     width: 60%;
-    background-color: white;
+    padding: 15px;
     border-radius: 50px;
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
     align-items: center;
-
 
 
 }
