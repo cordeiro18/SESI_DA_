@@ -217,14 +217,30 @@ body {
 
 }
 
-.menu-rodape{
+.menu-rodape {
 
     color: white;
-    
+    display: flex;
+    justify-content: space-between;
+
+}
+
+.menu-rodape p {
+
+    font-size: 28px;
+    font-weight: bold;
+    text-transform: uppercase;
+
 }
 
 .menu-rodape ul {
 
-display: flex;
+    display: flex;
+
+}
+
+.menu-rodape li {
+
+    margin-left: 25px;
 
 }
