@@ -1,0 +1,101 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html, body {
+    height: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+.container {
+    display: flex;
+    height: 100%;
+}
+
+.lado-esquerdo,
+.lado-direito {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.lado-esquerdo {
+    background: #f5f5f5;
+    position: relative;
+}
+
+.lado-esquerdo img {
+      width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.lado-esquerdo h1 {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    font-size: 2rem;
+    color: #000;
+}
+
+.lado-direito {
+    padding: 2rem;
+    text-align: center;
+}
+
+.lado-direito h2 {
+    font-size: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.botoes {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+.botao {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem;
+    border: 1px solid #000;
+    border-radius: 25px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+.botao.google::before,
+.botao.apple::before,
+.botao.email::before {
+    content: "";
+    display: inline-block;
+    width: 1.2em;
+    height: 1.2em;
+    margin-right: 0.5em;
+}
+
+.outros {
+    font-size: 0.9rem;
+}
+
+.outros a {
+    color: #007bff;
+    text-decoration: none;
+}
+
+.acao {
+    display: inline-block;
+    margin-top: 2rem;
+    padding: 0.75rem 2rem;
+    background: #000;
+    color: #fff;
+    border-radius: 25px;
+    text-decoration: none;
+}
