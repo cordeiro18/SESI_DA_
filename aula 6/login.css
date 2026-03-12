@@ -15,6 +15,7 @@ html, body {
 .container {
     display: flex;
     height: 100%;
+    justify-content: center;
 }
 
 .lado-esquerdo,
@@ -42,20 +43,26 @@ html, body {
 
 .lado-esquerdo h1 {
     position: absolute;
-    top: 20px;
-    left: 20px;
-    font-size: 2rem;
-    color: #000;
+    top: 10%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 5rem;  
+    color: #ffffffe3;
+    font: bold;;
 }
 
 .lado-direito {
     padding: 2rem;
     text-align: center;
+    position: relative;
 }
 
 .lado-direito h2 {
-    font-size: 80px;
-    margin-bottom:0 0 2rem;
+    font-size: 50px;
+    margin-top:10px ;
+    margin-bottom:80px;
+
+
 }
 
 .botoes {
@@ -98,10 +105,16 @@ html, body {
 
 .acao {
     display: inline-block;
-    margin-top: 2rem;
-    padding: 0.75rem 2rem;
+    margin-top: 1rem;
+    padding: 0.75rem 4rem;
     background: #000;
     color: #fff;
     border-radius: 25px;
     text-decoration: none;
+    position: absolute; 
+    bottom: 2rem;       
+    left: 50%;
+    transform: translateX(-50%);
+    width:500px ;
+    height:50px ;
 }
