@@ -92,6 +92,20 @@ body {
     width: 1.2em;
     height: 1.2em;
     margin-right: 0.5em;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+.botao.google::before {
+    background-image: url('https://developers.google.com/identity/images/g-logo.png');
+}
+
+.botao.apple::before {
+    background-image: url('https://www.apple.com/ac/structured-data/images/knowledge_graph_logo.png?202303170816');
+}
+
+.botao.email::before {
+    background-image: url('https://cdn-icons-png.flaticon.com/512/561/561127.png');
 }
 
 
