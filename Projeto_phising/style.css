@@ -8,6 +8,9 @@ body {
 }
 
 .card-login {
+
+    display: flex;
+    flex-direction: column;
     background-color: #08687e;
     max-width: 340px;
     padding: 10px 30px 45px 30px;
@@ -33,3 +36,4 @@ body {
 .icon img{
     width: 50%;
 }
+
