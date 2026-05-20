@@ -1,1 +1,65 @@
-HTML
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orçamento de Festa - Lucas Cordeiro</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>Lucas Cordeiro Eventos</h1>
+        <p>Orçamento de Animadores para Festas</p>
+    </header>
+
+    <section class="container">
+
+        <div class="formulario">
+
+            <h2>Solicite seu orçamento</h2>
+
+            <label>Nome:</label>
+            <input type="text" id="nome" placeholder="Digite seu nome">
+
+            <label>Tipo de Festa:</label>
+            <select id="tipoFesta">
+                <option>Aniversário</option>
+                <option>Casamento</option>
+                <option>Infantil</option>
+                <option>Empresa</option>
+            </select>
+
+            <label>Quantidade de Convidados:</label>
+            <input type="number" id="convidados" placeholder="Ex: 100">
+
+            <label>Quantidade de Animadores:</label>
+            <input type="number" id="animadores" placeholder="Ex: 3">
+
+            <button onclick="calcularOrcamento()">
+                Calcular Orçamento
+            </button>
+
+        </div>
+
+        <div class="resultado">
+
+            <h2>Resultado</h2>
+
+            <p id="mensagem">
+                Preencha os dados para calcular.
+            </p>
+
+        </div>
+
+    </section>
+
+    <footer>
+        <p>© 2026 - Lucas Cordeiro Eventos</p>
+    </footer>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
