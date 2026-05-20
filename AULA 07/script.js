@@ -38,6 +38,18 @@ function calcularOrcamento() {
         valorTipo = 2500;
     }
 
+    else if(tipoFesta === "Baile Funk") {
+        valorTipo = 2200;
+    }
+
+    else if(tipoFesta === "Rave Eletrônica") {
+        valorTipo = 3500;
+    }
+
+    else if(tipoFesta === "Balada Gospel") {
+        valorTipo = 1800;
+    }
+
     let valorConvidados = convidados * 18;
 
     
