@@ -35,7 +35,8 @@ header p {
 }
 
 .formulario,
-.resultado {
+.resultado,
+.pagamento {
     background: white;
     width: 400px;
     padding: 30px;
@@ -83,6 +84,24 @@ button:hover {
 .resultado p {
     font-size: 20px;
     line-height: 1.6;
+}
+
+.pagamento h2 {
+    color: #2575fc;
+    margin-bottom: 20px;
+}
+
+.detalhe-pagamento {
+    background: #f9f9f9;
+    padding: 15px;
+    border-radius: 8px;
+    margin-top: 15px;
+    border-left: 4px solid #2575fc;
+}
+
+.detalhe-pagamento p {
+    margin: 8px 0;
+    font-size: 14px;
 }
 
 footer {
