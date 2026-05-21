@@ -1,1 +1,144 @@
-HTML
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <link rel="icon" href="img/festa.png" type="image/png">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orçamento de Festa - Lucas Cordeiro</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>Lucas Cordeiro Eventos e Serviços</h1>
+        <p>Orçamento de Animadores para Festas</p>
+    </header>
+
+    <section class="container">
+
+        <div class="formulario">
+
+            <h2>Solicite seu orçamento</h2>
+
+            <label>Nome:</label>
+            <input type="text" id="nome" placeholder="Digite seu nome">
+
+            <label>Tipo de Festa:</label>
+            <select id="tipoFesta">
+                <option>Aniversário</option>
+                <option>Casamento</option>
+                <option>Infantil</option>
+                <option>Empresa</option>
+                <option>Baile Funk</option>
+                <option>Rave Eletrônica</option>
+                <option>Balada Gospel</option>
+            </select>
+
+            <label>Quantidade de Convidados:</label>
+            <input type="number" id="convidados" placeholder="Ex: 100">
+
+            <label>Quantidade de Animadores:</label>
+            <input type="number" id="animadores" placeholder="Ex: 3">
+
+            <button onclick="calcularOrcamento()">
+                Calcular Orçamento
+            </button>
+
+        </div>
+
+        <div class="resultado">
+
+            <h2>Resultado</h2>
+
+            <p id="mensagem">
+                Preencha os dados para calcular.
+            </p>
+
+        </div>
+
+        <div class="pagamento" id="pagamento" style="display:none;">
+
+            <h2>Formas de Pagamento</h2>
+
+            <label>Escolha o método de pagamento:</label>
+            <select id="metodoPagamento" onchange="atualizarPagamento()">
+                <option value="">Selecione...</option>
+                <option value="pix">PIX</option>
+                <option value="boleto">Boleto</option>
+                <option value="cartao">Cartão de Crédito</option>
+                <option value="pataco">Dinheiro</option>
+            </select>
+
+            <div id="detalhPagamento" style="margin-top: 20px;"></div>
+
+            <button onclick="finalizarPagamento()" style="margin-top: 20px; background: green;">
+                Finalizar Pedido
+            </button>
+
+        </div>
+
+    </section>
+
+    <!-- Modal para PIX -->
+    <div id="modalPix" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModalPix()">&times;</span>
+            <h2>Pagamento via PIX</h2>
+            <p>Escaneie o QR Code com seu celular:</p>
+            <div id="qrCodeContainer" style="text-align: center; margin: 20px 0;"></div>
+            <p><strong>Chave PIX (CPF):</strong> <span id="chavePix">123.456.789-00</span></p>
+            <p><strong>Valor:</strong> <span id="valorPix" style="color: green; font-weight: bold;">R$ 0.00</span></p>
+            <p style="font-size: 12px; color: #666; margin-top: 15px;">Após realizar a transferência, sua festa será confirmada em breve.</p>
+        </div>
+    </div>
+
+    <style>
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+        }
+    </style>
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+
+    <footer>
+        <p>© 2026 - Lucas Cordeiro Eventos</p>
+    </footer>
+
+    <script src="script.js"></script>
+
+</body>
+</html>
