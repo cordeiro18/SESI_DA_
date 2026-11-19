@@ -34,6 +34,10 @@ public final class DatabaseMigration {
                         statement.execute("ALTER TABLE tutores ADD COLUMN convite_expira_em INTEGER");
                     }
                 }
+                adicionarColunaSeNecessario(connection, "tutores", "foto_perfil", "BLOB");
+                adicionarColunaSeNecessario(connection, "tutores", "foto_perfil_mime", "TEXT");
+                adicionarColunaSeNecessario(connection, "pets", "foto", "BLOB");
+                adicionarColunaSeNecessario(connection, "pets", "foto_mime", "TEXT");
                 try (Statement statement = connection.createStatement()) {
                     statement.execute("""
                             CREATE UNIQUE INDEX IF NOT EXISTS idx_usuarios_tutor_id
@@ -77,5 +81,14 @@ public final class DatabaseMigration {
             }
         }
         return false;
+    }
+
+    private static void adicionarColunaSeNecessario(
+            Connection connection, String table, String column, String type) throws SQLException {
+        if (!possuiColuna(connection, table, column)) {
+            try (Statement statement = connection.createStatement()) {
+                statement.execute("ALTER TABLE " + table + " ADD COLUMN " + column + " " + type);
+            }
+        }
     }
 }

@@ -4,7 +4,7 @@
 
 Use a tarefa existente do VS Code **Clínica Veterinária: iniciar site e API** ou execute `iniciar.cmd` nesta pasta. O site fica disponível em `http://127.0.0.1:8081`.
 
-O primeiro início aplica uma migração aditiva: adiciona `usuarios.tutor_id` e os campos de convite em `tutores`, com índices únicos. Os registros existentes não são apagados nem recriados. Uma conta vinculada a um tutor é tratada como `CLIENTE`; contas sem vínculo usam o perfil `ADMIN` ou `FUNCIONARIO` já armazenado.
+O primeiro início aplica migrações aditivas: adiciona `usuarios.tutor_id`, campos de convite em `tutores` e colunas para fotos de perfil e de pets. Os registros existentes não são apagados nem recriados; as imagens são guardadas no próprio SQLite.
 
 ## Senhas dos funcionários existentes
 
@@ -28,3 +28,5 @@ Para um tutor já cadastrado, um funcionário deve confirmar a identidade presen
 - A sessão usa cookie `HttpOnly` e `SameSite=Strict`; operações que alteram dados também exigem token CSRF.
 - O servidor escuta somente em `127.0.0.1`. Mantenha-o local; não o exponha diretamente à rede ou à internet sem HTTPS e uma configuração de produção apropriada.
 - Clientes veem apenas pets e agendamentos vinculados ao tutor da sessão. O backend ignora IDs de tutor enviados por contas de cliente.
+- Clientes podem remover seus próprios pets quando não há agendamentos vinculados; o histórico impede a exclusão definitiva.
+- Fotos de perfil e dos pets aceitam PNG/JPEG de até 2 MB, são validadas no backend e só podem ser alteradas pelo titular ou por um funcionário autenticado.

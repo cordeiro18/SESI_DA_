@@ -33,7 +33,10 @@
                 <p>Acompanhe seus dados, pets e consultas.</p>
             </div>
             <div class="header-profile" aria-label="Perfil do cliente">
-                <span class="profile-avatar" aria-hidden="true">♡</span>
+                <span class="profile-avatar">
+                    <span id="avatar-fallback-header" aria-hidden="true">♡</span>
+                    <img id="avatar-imagem-header" alt="Foto de perfil" hidden>
+                </span>
                 <span><strong id="nome-cliente">Cliente</strong><small>Minha conta</small></span>
             </div>
             <p id="api-status" class="api-status" role="status">Conectando ao backend...</p>
@@ -53,6 +56,29 @@
                 </div>
                 <p class="mensagem" id="mensagem-perfil" role="status"></p>
             </form>
+            <div class="account-photo">
+                <div class="account-photo-avatar">
+                    <span id="avatar-fallback-conta" aria-hidden="true">♡</span>
+                    <img id="avatar-imagem-conta" alt="Sua foto de perfil" hidden>
+                </div>
+                <div class="account-photo-content">
+                    <h3>Foto de perfil</h3>
+                    <p>Escolha uma foto PNG ou JPEG de até 2 MB.</p>
+                    <form id="form-foto-perfil">
+                        <div class="field">
+                            <label for="arquivo-foto-perfil">Selecionar foto</label>
+                            <input id="arquivo-foto-perfil" type="file" accept="image/png,image/jpeg" required>
+                        </div>
+                        <div class="photo-actions">
+                            <button type="submit">Salvar foto</button>
+                            <button type="button" id="remover-foto-perfil" class="photo-remove" hidden>
+                                Remover foto
+                            </button>
+                        </div>
+                    </form>
+                    <p class="mensagem" id="mensagem-foto-perfil" role="status"></p>
+                </div>
+            </div>
         </section>
 
         <section id="pets" class="client-page escondido">

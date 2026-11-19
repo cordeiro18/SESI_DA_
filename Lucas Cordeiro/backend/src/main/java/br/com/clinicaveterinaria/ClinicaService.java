@@ -18,7 +18,8 @@ public final class ClinicaService {
     public record Tutor(long id, String nome, String telefone) {
     }
 
-    public record Pet(long id, long tutorId, String tutorNome, String nome, String especie, String raca) {
+    public record Pet(
+            long id, long tutorId, String tutorNome, String nome, String especie, String raca, boolean temFoto) {
     }
 
     public record Agendamento(
@@ -41,10 +42,13 @@ public final class ClinicaService {
             Long petId, String data, String horario, String motivo, String status) {
     }
 
-    public record ClientProfile(String nome, String email, String telefone) {
+    public record ClientProfile(String nome, String email, String telefone, boolean temFoto) {
     }
 
     public record ClientProfileRequest(String nome, String email, String telefone) {
+    }
+
+    public record Foto(byte[] bytes, String tipoMime) {
     }
 
     public record ClientInvitation(String codigo, String expiraEm) {
@@ -170,7 +174,8 @@ public final class ClinicaService {
     public List<Pet> listarPets(Long tutorId) throws SQLException {
         List<Pet> pets = new ArrayList<>();
         String sql = """
-                SELECT p.id, p.tutor_id, t.nome AS tutor_nome, p.nome, p.especie, p.raca
+                SELECT p.id, p.tutor_id, t.nome AS tutor_nome, p.nome, p.especie, p.raca,
+                       p.foto IS NOT NULL AS tem_foto
                 FROM pets p
                 JOIN tutores t ON t.id = p.tutor_id
                 """ + (tutorId == null ? "" : "WHERE p.tutor_id = ? ") + "ORDER BY p.nome";
@@ -320,7 +325,7 @@ public final class ClinicaService {
 
     public ClientProfile buscarPerfilCliente(AuthService.User user) throws SQLException {
         String sql = """
-                SELECT t.nome, u.email, t.telefone
+                SELECT t.nome, u.email, t.telefone, t.foto_perfil IS NOT NULL AS tem_foto
                 FROM usuarios u
                 JOIN tutores t ON t.id = u.tutor_id
                 WHERE u.id = ? AND u.tutor_id = ?
@@ -336,7 +341,119 @@ public final class ClinicaService {
                 return new ClientProfile(
                         result.getString("nome"),
                         result.getString("email"),
-                        result.getString("telefone"));
+                        result.getString("telefone"),
+                        result.getBoolean("tem_foto"));
+            }
+        }
+    }
+
+    public Foto buscarFotoPerfilCliente(AuthService.User user) throws SQLException {
+        String sql = """
+                SELECT t.foto_perfil, t.foto_perfil_mime
+                FROM usuarios u
+                JOIN tutores t ON t.id = u.tutor_id
+                WHERE u.id = ? AND u.tutor_id = ? AND t.foto_perfil IS NOT NULL
+                """;
+        try (Connection connection = Conexao.abrir();
+             PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setLong(1, user.id());
+            statement.setLong(2, user.tutorId());
+            try (ResultSet result = statement.executeQuery()) {
+                if (!result.next()) {
+                    throw new NotFoundException();
+                }
+                return new Foto(result.getBytes("foto_perfil"), result.getString("foto_perfil_mime"));
+            }
+        }
+    }
+
+    public void salvarFotoPerfilCliente(AuthService.User user, ImagemUpload.Conteudo foto)
+            throws SQLException {
+        try (Connection connection = Conexao.abrir();
+             PreparedStatement statement = connection.prepareStatement("""
+                     UPDATE tutores
+                     SET foto_perfil = ?, foto_perfil_mime = ?
+                     WHERE id = ? AND EXISTS (
+                         SELECT 1 FROM usuarios WHERE id = ? AND tutor_id = tutores.id
+                     )
+                     """)) {
+            statement.setBytes(1, foto.bytes());
+            statement.setString(2, foto.tipoMime());
+            statement.setLong(3, user.tutorId());
+            statement.setLong(4, user.id());
+            if (statement.executeUpdate() == 0) {
+                throw new NotFoundException();
+            }
+        }
+    }
+
+    public void removerFotoPerfilCliente(AuthService.User user) throws SQLException {
+        try (Connection connection = Conexao.abrir();
+             PreparedStatement statement = connection.prepareStatement("""
+                     UPDATE tutores
+                     SET foto_perfil = NULL, foto_perfil_mime = NULL
+                     WHERE id = ? AND EXISTS (
+                         SELECT 1 FROM usuarios WHERE id = ? AND tutor_id = tutores.id
+                     )
+                     """)) {
+            statement.setLong(1, user.tutorId());
+            statement.setLong(2, user.id());
+            if (statement.executeUpdate() == 0) {
+                throw new NotFoundException();
+            }
+        }
+    }
+
+    public Foto buscarFotoPet(long petId, Long tutorId) throws SQLException {
+        requireId(petId);
+        try (Connection connection = Conexao.abrir();
+             PreparedStatement statement = connection.prepareStatement("""
+                     SELECT foto, foto_mime
+                     FROM pets
+                     WHERE id = ? AND (? IS NULL OR tutor_id = ?) AND foto IS NOT NULL
+                     """)) {
+            statement.setLong(1, petId);
+            setNullableLong(statement, 2, tutorId);
+            setNullableLong(statement, 3, tutorId);
+            try (ResultSet result = statement.executeQuery()) {
+                if (!result.next()) {
+                    throw new NotFoundException();
+                }
+                return new Foto(result.getBytes("foto"), result.getString("foto_mime"));
+            }
+        }
+    }
+
+    public void salvarFotoPet(long petId, Long tutorId, ImagemUpload.Conteudo foto) throws SQLException {
+        requireId(petId);
+        try (Connection connection = Conexao.abrir();
+             PreparedStatement statement = connection.prepareStatement("""
+                     UPDATE pets SET foto = ?, foto_mime = ?
+                     WHERE id = ? AND (? IS NULL OR tutor_id = ?)
+                     """)) {
+            statement.setBytes(1, foto.bytes());
+            statement.setString(2, foto.tipoMime());
+            statement.setLong(3, petId);
+            setNullableLong(statement, 4, tutorId);
+            setNullableLong(statement, 5, tutorId);
+            if (statement.executeUpdate() == 0) {
+                throw new NotFoundException();
+            }
+        }
+    }
+
+    public void removerFotoPet(long petId, Long tutorId) throws SQLException {
+        requireId(petId);
+        try (Connection connection = Conexao.abrir();
+             PreparedStatement statement = connection.prepareStatement("""
+                     UPDATE pets SET foto = NULL, foto_mime = NULL
+                     WHERE id = ? AND (? IS NULL OR tutor_id = ?)
+                     """)) {
+            statement.setLong(1, petId);
+            setNullableLong(statement, 2, tutorId);
+            setNullableLong(statement, 3, tutorId);
+            if (statement.executeUpdate() == 0) {
+                throw new NotFoundException();
             }
         }
     }
@@ -383,7 +500,7 @@ public final class ClinicaService {
                     }
                 }
                 connection.commit();
-                return new ClientProfile(nome, email, telefone);
+                return buscarPerfilCliente(user);
             } catch (SQLException | RuntimeException exception) {
                 connection.rollback();
                 throw exception;
@@ -395,8 +512,46 @@ public final class ClinicaService {
         return remover("tutores", id);
     }
 
-    public boolean removerPet(long id) throws SQLException {
-        return remover("pets", id);
+    public boolean removerPet(long id, Long tutorId) throws SQLException {
+        requireId(id);
+        try (Connection connection = Conexao.abrir()) {
+            connection.setAutoCommit(false);
+            try {
+                try (PreparedStatement query = connection.prepareStatement(
+                        "SELECT 1 FROM pets WHERE id = ? AND (? IS NULL OR tutor_id = ?)")) {
+                    query.setLong(1, id);
+                    setNullableLong(query, 2, tutorId);
+                    setNullableLong(query, 3, tutorId);
+                    try (ResultSet result = query.executeQuery()) {
+                        if (!result.next()) {
+                            connection.rollback();
+                            return false;
+                        }
+                    }
+                }
+                try (PreparedStatement query = connection.prepareStatement(
+                        "SELECT 1 FROM agendamentos WHERE pet_id = ? LIMIT 1")) {
+                    query.setLong(1, id);
+                    try (ResultSet result = query.executeQuery()) {
+                        if (result.next()) {
+                            throw new PetPossuiAgendamentosException();
+                        }
+                    }
+                }
+                try (PreparedStatement statement = connection.prepareStatement(
+                        "DELETE FROM pets WHERE id = ? AND (? IS NULL OR tutor_id = ?)")) {
+                    statement.setLong(1, id);
+                    setNullableLong(statement, 2, tutorId);
+                    setNullableLong(statement, 3, tutorId);
+                    boolean removido = statement.executeUpdate() > 0;
+                    connection.commit();
+                    return removido;
+                }
+            } catch (SQLException | RuntimeException exception) {
+                connection.rollback();
+                throw exception;
+            }
+        }
     }
 
     public boolean cancelarAgendamento(long id, Long clientTutorId) throws SQLException {
@@ -437,7 +592,8 @@ public final class ClinicaService {
 
     private Pet buscarPet(Connection connection, long id) throws SQLException {
         try (PreparedStatement statement = connection.prepareStatement("""
-                SELECT p.id, p.tutor_id, t.nome AS tutor_nome, p.nome, p.especie, p.raca
+                SELECT p.id, p.tutor_id, t.nome AS tutor_nome, p.nome, p.especie, p.raca,
+                       p.foto IS NOT NULL AS tem_foto
                 FROM pets p
                 JOIN tutores t ON t.id = p.tutor_id
                 WHERE p.id = ?
@@ -494,7 +650,8 @@ public final class ClinicaService {
                 result.getString("tutor_nome"),
                 result.getString("nome"),
                 result.getString("especie"),
-                result.getString("raca"));
+                result.getString("raca"),
+                result.getBoolean("tem_foto"));
     }
 
     private Agendamento readAppointment(ResultSet result) throws SQLException {
@@ -597,6 +754,12 @@ public final class ClinicaService {
     public static final class ClientAccountAlreadyLinkedException extends RuntimeException {
         public ClientAccountAlreadyLinkedException() {
             super("Este tutor já possui uma conta de cliente vinculada.");
+        }
+    }
+
+    public static final class PetPossuiAgendamentosException extends RuntimeException {
+        public PetPossuiAgendamentosException() {
+            super("Este pet possui agendamentos vinculados e não pode ser removido para preservar o histórico.");
         }
     }
 }

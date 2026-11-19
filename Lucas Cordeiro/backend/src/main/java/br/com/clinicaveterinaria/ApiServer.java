@@ -18,12 +18,15 @@ import java.util.regex.Pattern;
 
 public final class ApiServer implements HttpHandler {
     private static final int MAX_REQUEST_BYTES = 64 * 1024;
+    private static final int MAX_IMAGE_REQUEST_BYTES = 3 * 1024 * 1024;
     private static final String SESSION_COOKIE = "DOGMANIA_SESSION";
     private static final long SESSION_MAX_AGE_SECONDS = 8 * 60 * 60;
     private static final Pattern RESOURCE_PATH =
             Pattern.compile("^/api/(tutores|pets|agendamentos)(?:/(\\d+))?$");
     private static final Pattern CLIENT_INVITE_PATH =
             Pattern.compile("^/api/tutores/(\\d+)/convite$");
+    private static final Pattern PET_PHOTO_PATH =
+            Pattern.compile("^/api/pets/(\\d+)/foto$");
     private static final Map<String, String> STATIC_FILES = Map.of(
             "/login", "login.html",
             "/login.html", "login.html",
@@ -66,6 +69,8 @@ public final class ApiServer implements HttpHandler {
         } catch (AuthService.DuplicateEmailException | ClinicaService.CpfDuplicadoException exception) {
             sendJson(exchange, 409, Map.of("erro", exception.getMessage()));
         } catch (ClinicaService.ClientAccountAlreadyLinkedException exception) {
+            sendJson(exchange, 409, Map.of("erro", exception.getMessage()));
+        } catch (ClinicaService.PetPossuiAgendamentosException exception) {
             sendJson(exchange, 409, Map.of("erro", exception.getMessage()));
         } catch (AuthService.InvalidInvitationException exception) {
             sendJson(exchange, 400, Map.of("erro", exception.getMessage()));
@@ -130,6 +135,16 @@ public final class ApiServer implements HttpHandler {
         }
         if (path.equals("/api/cliente/me")) {
             handleClientProfile(exchange, session.user());
+            return;
+        }
+        if (path.equals("/api/cliente/me/foto")) {
+            handleClientProfilePhoto(exchange, session.user());
+            return;
+        }
+
+        Matcher petPhotoMatcher = PET_PHOTO_PATH.matcher(path);
+        if (petPhotoMatcher.matches()) {
+            handlePetPhoto(exchange, parseId(petPhotoMatcher.group(1)), session.user());
             return;
         }
 
@@ -215,6 +230,49 @@ public final class ApiServer implements HttpHandler {
         }
     }
 
+    private void handleClientProfilePhoto(HttpExchange exchange, AuthService.User user)
+            throws IOException, SQLException {
+        requireClient(user);
+        switch (exchange.getRequestMethod()) {
+            case "GET" -> sendImage(exchange, service.buscarFotoPerfilCliente(user));
+            case "PUT" -> {
+                service.salvarFotoPerfilCliente(user, readImageUpload(exchange));
+                sendJson(exchange, 200, Map.of("mensagem", "Foto de perfil atualizada."));
+            }
+            case "DELETE" -> {
+                service.removerFotoPerfilCliente(user);
+                sendJson(exchange, 200, Map.of("mensagem", "Foto de perfil removida."));
+            }
+            default -> methodNotAllowed(exchange, "GET, PUT, DELETE");
+        }
+    }
+
+    private void handlePetPhoto(HttpExchange exchange, long petId, AuthService.User user)
+            throws IOException, SQLException {
+        if (!user.isClient() && !user.isStaff()) {
+            throw new ApiException(403, "Acesso não permitido.");
+        }
+        Long clientTutorId = user.isClient() ? user.tutorId() : null;
+        switch (exchange.getRequestMethod()) {
+            case "GET" -> sendImage(exchange, service.buscarFotoPet(petId, clientTutorId));
+            case "PUT" -> {
+                service.salvarFotoPet(petId, clientTutorId, readImageUpload(exchange));
+                sendJson(exchange, 200, Map.of("mensagem", "Foto do pet atualizada."));
+            }
+            case "DELETE" -> {
+                service.removerFotoPet(petId, clientTutorId);
+                sendJson(exchange, 200, Map.of("mensagem", "Foto do pet removida."));
+            }
+            default -> methodNotAllowed(exchange, "GET, PUT, DELETE");
+        }
+    }
+
+    private void requireClient(AuthService.User user) {
+        if (!user.isClient()) {
+            throw new ApiException(403, "Este recurso está disponível apenas para clientes.");
+        }
+    }
+
     private void handleResource(HttpExchange exchange, String resource, Long id, AuthService.User user)
             throws IOException, SQLException, GeneralSecurityException {
         String method = exchange.getRequestMethod();
@@ -265,8 +323,7 @@ public final class ApiServer implements HttpHandler {
             case "PUT" -> sendJson(exchange, 200, service.atualizarPet(
                     id, readJson(exchange, ClinicaService.PetRequest.class), clientTutorId));
             case "DELETE" -> {
-                requireStaff(user);
-                removePet(exchange, id);
+                removePet(exchange, id, clientTutorId);
             }
             default -> methodNotAllowed(exchange, "PUT, DELETE");
         }
@@ -307,8 +364,8 @@ public final class ApiServer implements HttpHandler {
         sendJson(exchange, 200, Map.of("mensagem", "Tutor removido."));
     }
 
-    private void removePet(HttpExchange exchange, long id) throws IOException, SQLException {
-        if (!service.removerPet(id)) {
+    private void removePet(HttpExchange exchange, long id, Long clientTutorId) throws IOException, SQLException {
+        if (!service.removerPet(id, clientTutorId)) {
             throw new ClinicaService.NotFoundException();
         }
         sendJson(exchange, 200, Map.of("mensagem", "Pet removido."));
@@ -421,16 +478,38 @@ public final class ApiServer implements HttpHandler {
                 SESSION_COOKIE + "=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0");
     }
 
+    private ImagemUpload.Conteudo readImageUpload(HttpExchange exchange) throws IOException {
+        ImageUploadRequest request = readJson(exchange, ImageUploadRequest.class, MAX_IMAGE_REQUEST_BYTES);
+        if (request == null) {
+            throw new IllegalArgumentException("Selecione uma imagem PNG ou JPEG.");
+        }
+        return ImagemUpload.validar(request.tipoMime(), request.base64());
+    }
+
     private <T> T readJson(HttpExchange exchange, Class<T> type) throws IOException {
+        return readJson(exchange, type, MAX_REQUEST_BYTES);
+    }
+
+    private <T> T readJson(HttpExchange exchange, Class<T> type, int maxBytes) throws IOException {
         String contentType = exchange.getRequestHeaders().getFirst("Content-Type");
         if (contentType == null || !contentType.toLowerCase().startsWith("application/json")) {
             throw new ApiException(415, "Envie os dados no formato application/json.");
         }
-        byte[] body = exchange.getRequestBody().readNBytes(MAX_REQUEST_BYTES + 1);
-        if (body.length > MAX_REQUEST_BYTES) {
+        byte[] body = exchange.getRequestBody().readNBytes(maxBytes + 1);
+        if (body.length > maxBytes) {
             throw new ApiException(413, "A requisição excede o tamanho permitido.");
         }
         return gson.fromJson(new String(body, StandardCharsets.UTF_8), type);
+    }
+
+    private void sendImage(HttpExchange exchange, ClinicaService.Foto foto) throws IOException {
+        setSecurityHeaders(exchange);
+        exchange.getResponseHeaders().set("Content-Type", foto.tipoMime());
+        exchange.getResponseHeaders().set("Cache-Control", "no-store");
+        exchange.sendResponseHeaders(200, foto.bytes().length);
+        try (OutputStream response = exchange.getResponseBody()) {
+            response.write(foto.bytes());
+        }
     }
 
     private long parseId(String value) {
@@ -500,6 +579,19 @@ public final class ApiServer implements HttpHandler {
 
         public String senha() {
             return senha;
+        }
+    }
+
+    private static final class ImageUploadRequest {
+        private String tipoMime;
+        private String base64;
+
+        public String tipoMime() {
+            return tipoMime;
+        }
+
+        public String base64() {
+            return base64;
         }
     }
 
