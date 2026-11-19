@@ -1023,6 +1023,116 @@ a:focus-visible {
     }
 }
 
+.invite-warning {
+    margin: 12px 0;
+    color: #806344;
+    font-size: 11px;
+    line-height: 1.5;
+}
+
+.registro .convidar {
+    min-height: 32px;
+    padding: 0 10px;
+    border: 1px solid #dce9e1;
+    border-radius: 8px;
+    color: #397b5e;
+    background: #f3f8f5;
+    font-size: 10px;
+    font-weight: 600;
+}
+
+.registro .convidar:hover {
+    color: #fff;
+    background: #397b5e;
+}
+
+.invite-dialog {
+    width: min(440px, calc(100% - 32px));
+    padding: 0;
+    overflow: hidden;
+    border: 1px solid #e3ebe5;
+    border-radius: 17px;
+    color: var(--ink);
+    background: #fff;
+    box-shadow: 0 22px 65px #102f221f;
+}
+
+.invite-dialog::backdrop {
+    background: #122a20a6;
+    backdrop-filter: blur(3px);
+}
+
+.invite-dialog-content {
+    padding: 27px;
+}
+
+.invite-dialog-content h2 {
+    margin: 0;
+    font-size: 21px;
+    letter-spacing: -.4px;
+}
+
+.invite-dialog-content > p:not(.eyebrow) {
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.invite-dialog-content label {
+    display: block;
+    margin: 18px 0 7px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.invite-dialog-content input {
+    width: 100%;
+    min-height: 43px;
+    padding: 0 11px;
+    border: 1px solid #dfe8e2;
+    border-radius: 8px;
+    color: var(--green-900);
+    background: #f6faf7;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.invite-dialog-content .invite-expiry {
+    margin: 7px 0 0;
+    font-size: 10px;
+}
+
+.invite-dialog-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 21px;
+}
+
+.invite-dialog-actions button {
+    min-height: 36px;
+    padding: 0 12px;
+    border: 1px solid #dce9e1;
+    border-radius: 8px;
+    color: #397b5e;
+    background: #f3f8f5;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.invite-dialog-actions button:last-child {
+    border-color: #e6ece8;
+    color: #64746b;
+    background: #fff;
+}
+
+.invite-help {
+    margin: 0 0 17px;
+    color: var(--muted);
+    font-size: 11px;
+    line-height: 1.55;
+}
+
 @media (max-width: 380px) {
     nav button {
         flex-direction: column;

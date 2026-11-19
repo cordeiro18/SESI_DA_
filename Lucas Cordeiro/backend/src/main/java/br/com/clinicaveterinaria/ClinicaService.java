@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeParseException;
@@ -44,6 +45,9 @@ public final class ClinicaService {
     }
 
     public record ClientProfileRequest(String nome, String email, String telefone) {
+    }
+
+    public record ClientInvitation(String codigo, String expiraEm) {
     }
 
     public long contarTutores() throws SQLException {
@@ -113,6 +117,54 @@ public final class ClinicaService {
             }
         }
         return new Tutor(id, nome, telefone);
+    }
+
+    public ClientInvitation gerarConviteCliente(long tutorId) throws SQLException {
+        requireId(tutorId);
+        String codigo = AuthService.gerarCodigoConvite();
+        String codigoHash = AuthService.hashInvitationCode(codigo);
+        long expiraEm = System.currentTimeMillis() + 24 * 60 * 60 * 1000L;
+
+        try (Connection connection = Conexao.abrir()) {
+            connection.setAutoCommit(false);
+            try {
+                try (PreparedStatement tutorQuery =
+                             connection.prepareStatement("SELECT 1 FROM tutores WHERE id = ?");
+                     PreparedStatement accountQuery =
+                             connection.prepareStatement("SELECT 1 FROM usuarios WHERE tutor_id = ?")) {
+                    tutorQuery.setLong(1, tutorId);
+                    try (ResultSet result = tutorQuery.executeQuery()) {
+                        if (!result.next()) {
+                            throw new NotFoundException();
+                        }
+                    }
+                    accountQuery.setLong(1, tutorId);
+                    try (ResultSet result = accountQuery.executeQuery()) {
+                        if (result.next()) {
+                            throw new ClientAccountAlreadyLinkedException();
+                        }
+                    }
+                }
+
+                try (PreparedStatement statement = connection.prepareStatement("""
+                        UPDATE tutores
+                        SET convite_hash = ?, convite_expira_em = ?
+                        WHERE id = ?
+                        """)) {
+                    statement.setString(1, codigoHash);
+                    statement.setLong(2, expiraEm);
+                    statement.setLong(3, tutorId);
+                    if (statement.executeUpdate() != 1) {
+                        throw new NotFoundException();
+                    }
+                }
+                connection.commit();
+                return new ClientInvitation(codigo, Instant.ofEpochMilli(expiraEm).toString());
+            } catch (SQLException | RuntimeException exception) {
+                connection.rollback();
+                throw exception;
+            }
+        }
     }
 
     public List<Pet> listarPets(Long tutorId) throws SQLException {
@@ -539,6 +591,12 @@ public final class ClinicaService {
     public static final class NotFoundException extends RuntimeException {
         public NotFoundException() {
             super("Registro não encontrado.");
+        }
+    }
+
+    public static final class ClientAccountAlreadyLinkedException extends RuntimeException {
+        public ClientAccountAlreadyLinkedException() {
+            super("Este tutor já possui uma conta de cliente vinculada.");
         }
     }
 }

@@ -22,6 +22,8 @@ public final class ApiServer implements HttpHandler {
     private static final long SESSION_MAX_AGE_SECONDS = 8 * 60 * 60;
     private static final Pattern RESOURCE_PATH =
             Pattern.compile("^/api/(tutores|pets|agendamentos)(?:/(\\d+))?$");
+    private static final Pattern CLIENT_INVITE_PATH =
+            Pattern.compile("^/api/tutores/(\\d+)/convite$");
     private static final Map<String, String> STATIC_FILES = Map.of(
             "/login", "login.html",
             "/login.html", "login.html",
@@ -63,6 +65,10 @@ public final class ApiServer implements HttpHandler {
             sendJson(exchange, 401, Map.of("erro", exception.getMessage()));
         } catch (AuthService.DuplicateEmailException | ClinicaService.CpfDuplicadoException exception) {
             sendJson(exchange, 409, Map.of("erro", exception.getMessage()));
+        } catch (ClinicaService.ClientAccountAlreadyLinkedException exception) {
+            sendJson(exchange, 409, Map.of("erro", exception.getMessage()));
+        } catch (AuthService.InvalidInvitationException exception) {
+            sendJson(exchange, 400, Map.of("erro", exception.getMessage()));
         } catch (ClinicaService.NotFoundException exception) {
             sendJson(exchange, 404, Map.of("erro", exception.getMessage()));
         } catch (JsonParseException | IllegalArgumentException exception) {
@@ -127,6 +133,16 @@ public final class ApiServer implements HttpHandler {
             return;
         }
 
+        Matcher inviteMatcher = CLIENT_INVITE_PATH.matcher(path);
+        if (inviteMatcher.matches()) {
+            requireStaff(session.user());
+            if (!requireMethod(exchange, "POST")) {
+                return;
+            }
+            sendJson(exchange, 201, service.gerarConviteCliente(parseId(inviteMatcher.group(1))));
+            return;
+        }
+
         Matcher matcher = RESOURCE_PATH.matcher(path);
         if (!matcher.matches()) {
             throw new ApiException(404, "Rota da API não encontrada.");
@@ -159,6 +175,18 @@ public final class ApiServer implements HttpHandler {
                 throw new ApiException(400, "Envie os dados para criar a conta.");
             }
             setSessionCookie(exchange, authService.registrarCliente(request));
+            return true;
+        }
+        if (path.equals("/api/auth/register-existing")) {
+            if (!requireMethod(exchange, "POST")) {
+                return true;
+            }
+            AuthService.ClientInviteRegistration request =
+                    readJson(exchange, AuthService.ClientInviteRegistration.class);
+            if (request == null) {
+                throw new ApiException(400, "Informe o código do convite, e-mail e senha.");
+            }
+            setSessionCookie(exchange, authService.registrarClienteComConvite(request));
             return true;
         }
         return false;

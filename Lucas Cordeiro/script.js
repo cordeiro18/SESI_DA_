@@ -151,6 +151,32 @@ function criarLinha(tipo, record, route) {
     });
     actions.append(edit);
 
+    if (tipo === "tutores") {
+        const invite = document.createElement("button");
+        invite.type = "button";
+        invite.className = "convidar";
+        invite.textContent = "Gerar convite";
+        invite.addEventListener("click", async function() {
+            try {
+                const invitation = await requisitar(
+                    route + "/" + record.id + "/convite",
+                    { method: "POST" }
+                );
+                document.getElementById("codigo-convite").value = invitation.codigo;
+                document.getElementById("expiracao-convite").textContent =
+                    "Válido até " + new Intl.DateTimeFormat("pt-BR", {
+                        dateStyle: "short",
+                        timeStyle: "short"
+                    }).format(new Date(invitation.expiraEm));
+                document.getElementById("copiar-convite").textContent = "Copiar código";
+                document.getElementById("dialog-convite").showModal();
+            } catch (error) {
+                window.alert(mensagemDeErro(error));
+            }
+        });
+        actions.append(invite);
+    }
+
     const remove = document.createElement("button");
     remove.type = "button";
     remove.className = "remover";
@@ -274,6 +300,28 @@ document.addEventListener("DOMContentLoaded", async function() {
             window.alert(mensagemDeErro(error));
         }
         window.location.replace("/login");
+    });
+    document.getElementById("fechar-convite").addEventListener("click", function() {
+        document.getElementById("dialog-convite").close();
+    });
+    document.getElementById("dialog-convite").addEventListener("close", function() {
+        document.getElementById("codigo-convite").value = "";
+        document.getElementById("expiracao-convite").textContent = "";
+    });
+    document.getElementById("copiar-convite").addEventListener("click", async function() {
+        const input = document.getElementById("codigo-convite");
+        if (!navigator.clipboard || !navigator.clipboard.writeText) {
+            input.select();
+            window.alert("Código selecionado. Copie-o com Ctrl+C.");
+            return;
+        }
+        try {
+            await navigator.clipboard.writeText(input.value);
+            this.textContent = "Código copiado";
+        } catch {
+            input.select();
+            window.alert("Não foi possível copiar automaticamente. Copie o código selecionado com Ctrl+C.");
+        }
     });
 
     configurarFormulario("tutor", "/api/tutores", "mensagem-tutor");

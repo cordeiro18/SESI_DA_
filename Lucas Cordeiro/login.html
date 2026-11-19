@@ -73,9 +73,34 @@
                 <p class="mensagem" id="mensagem-cadastro" role="status" aria-live="polite"></p>
             </form>
 
+            <form id="form-convite-cliente" class="auth-form escondido">
+                <p class="invite-help">Use o código recebido da equipe DogMania para vincular sua conta ao cadastro existente.</p>
+                <div class="field">
+                    <label for="convite-codigo">Código do convite</label>
+                    <input id="convite-codigo" name="codigo" autocomplete="one-time-code"
+                           minlength="40" maxlength="64" required>
+                </div>
+                <div class="field">
+                    <label for="convite-email">E-mail</label>
+                    <input id="convite-email" name="email" type="email" autocomplete="email" required>
+                </div>
+                <div class="field">
+                    <label for="convite-senha">Crie sua senha (mínimo 12 caracteres)</label>
+                    <div class="password-field">
+                        <input id="convite-senha" name="senha" type="password" autocomplete="new-password"
+                               minlength="12" required>
+                        <button class="password-toggle" type="button" data-password-toggle="convite-senha"
+                                aria-label="Mostrar senha">Mostrar</button>
+                    </div>
+                </div>
+                <button class="auth-submit" type="submit">Vincular minha conta <span aria-hidden="true">→</span></button>
+                <p class="mensagem" id="mensagem-convite" role="status" aria-live="polite"></p>
+            </form>
+
             <p class="auth-switch">
                 <span id="texto-alternar">Ainda não tem uma conta?</span>
                 <button id="alternar-formulario" type="button">Criar conta de cliente</button>
+                <button id="usar-convite" type="button">Tenho um convite</button>
             </p>
             <p class="login-footnote">Funcionários: use as credenciais fornecidas pela administração da clínica.</p>
         </section>

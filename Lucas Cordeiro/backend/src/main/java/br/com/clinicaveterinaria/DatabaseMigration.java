@@ -24,11 +24,26 @@ public final class DatabaseMigration {
                                 """);
                     }
                 }
+                if (!possuiColunaConviteHash(connection)) {
+                    try (Statement statement = connection.createStatement()) {
+                        statement.execute("ALTER TABLE tutores ADD COLUMN convite_hash TEXT");
+                    }
+                }
+                if (!possuiColunaConviteExpiracao(connection)) {
+                    try (Statement statement = connection.createStatement()) {
+                        statement.execute("ALTER TABLE tutores ADD COLUMN convite_expira_em INTEGER");
+                    }
+                }
                 try (Statement statement = connection.createStatement()) {
                     statement.execute("""
                             CREATE UNIQUE INDEX IF NOT EXISTS idx_usuarios_tutor_id
                             ON usuarios(tutor_id)
                             WHERE tutor_id IS NOT NULL
+                            """);
+                    statement.execute("""
+                            CREATE UNIQUE INDEX IF NOT EXISTS idx_tutores_convite_hash
+                            ON tutores(convite_hash)
+                            WHERE convite_hash IS NOT NULL
                             """);
                 }
                 connection.commit();
@@ -40,10 +55,23 @@ public final class DatabaseMigration {
     }
 
     private static boolean possuiColunaTutorId(Connection connection) throws SQLException {
+        return possuiColuna(connection, "usuarios", "tutor_id");
+    }
+
+    private static boolean possuiColunaConviteHash(Connection connection) throws SQLException {
+        return possuiColuna(connection, "tutores", "convite_hash");
+    }
+
+    private static boolean possuiColunaConviteExpiracao(Connection connection) throws SQLException {
+        return possuiColuna(connection, "tutores", "convite_expira_em");
+    }
+
+    private static boolean possuiColuna(Connection connection, String table, String column)
+            throws SQLException {
         try (Statement statement = connection.createStatement();
-             ResultSet result = statement.executeQuery("PRAGMA table_info(usuarios)")) {
+             ResultSet result = statement.executeQuery("PRAGMA table_info(" + table + ")")) {
             while (result.next()) {
-                if ("tutor_id".equalsIgnoreCase(result.getString("name"))) {
+                if (column.equalsIgnoreCase(result.getString("name"))) {
                     return true;
                 }
             }

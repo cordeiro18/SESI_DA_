@@ -107,6 +107,7 @@
                 <p class="mensagem" id="mensagem-tutor" role="status"></p>
             </form>
             <div class="list-heading"><h3>Tutores cadastrados</h3><span>Dados protegidos</span></div>
+            <p class="invite-warning">Gere convite somente depois de confirmar presencialmente a identidade do tutor.</p>
             <ul class="lista-registros" id="lista-tutores"></ul>
         </section>
 
@@ -149,5 +150,19 @@
         </section>
 
     </main>
+    <dialog id="dialog-convite" class="invite-dialog" aria-labelledby="titulo-convite">
+        <div class="invite-dialog-content">
+            <p class="eyebrow">ACESSO DO CLIENTE</p>
+            <h2 id="titulo-convite">Convite de uso único</h2>
+            <p>Entregue este código diretamente ao tutor após confirmar a identidade. Ele expira em 24 horas.</p>
+            <label for="codigo-convite">Código do convite</label>
+            <input id="codigo-convite" type="text" readonly>
+            <p id="expiracao-convite" class="invite-expiry"></p>
+            <div class="invite-dialog-actions">
+                <button id="copiar-convite" type="button" class="editar">Copiar código</button>
+                <button id="fechar-convite" type="button" class="remover">Fechar</button>
+            </div>
+        </div>
+    </dialog>
 </body>
 </html>

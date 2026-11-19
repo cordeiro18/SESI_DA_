@@ -45,6 +45,9 @@ public final class AuthService {
     public record ClientRegistration(String nome, String email, String senha, String telefone, String cpf) {
     }
 
+    public record ClientInviteRegistration(String codigo, String email, String senha) {
+    }
+
     private record StoredSession(User user, String csrfToken, long expiresAt) {
     }
 
@@ -135,6 +138,77 @@ public final class AuthService {
         }
     }
 
+    public SessionResult registrarClienteComConvite(ClientInviteRegistration request) throws SQLException {
+        if (request == null) {
+            throw new InvalidInvitationException();
+        }
+        String codigo = request.codigo() == null ? "" : request.codigo().trim();
+        if (!codigo.matches("^[A-Za-z0-9_-]{40,64}$")) {
+            throw new InvalidInvitationException();
+        }
+        String email = normalizeEmail(request.email());
+        String senha = requirePassword(request.senha());
+        String senhaHash = BCrypt.hashpw(senha, BCrypt.gensalt(BCRYPT_COST));
+        String codigoHash = hashInvitationCode(codigo);
+
+        try (Connection connection = Conexao.abrir()) {
+            connection.setAutoCommit(false);
+            try {
+                if (emailExists(connection, email)) {
+                    throw new DuplicateEmailException();
+                }
+
+                long tutorId;
+                String nome;
+                try (PreparedStatement statement = connection.prepareStatement("""
+                        SELECT id, nome
+                        FROM tutores
+                        WHERE convite_hash = ? AND convite_expira_em > ?
+                        """)) {
+                    statement.setString(1, codigoHash);
+                    statement.setLong(2, System.currentTimeMillis());
+                    try (ResultSet result = statement.executeQuery()) {
+                        if (!result.next()) {
+                            throw new InvalidInvitationException();
+                        }
+                        tutorId = result.getLong("id");
+                        nome = result.getString("nome");
+                    }
+                }
+
+                try (PreparedStatement statement = connection.prepareStatement("""
+                        UPDATE tutores
+                        SET convite_hash = NULL, convite_expira_em = NULL
+                        WHERE id = ? AND convite_hash = ? AND convite_expira_em > ?
+                        """)) {
+                    statement.setLong(1, tutorId);
+                    statement.setString(2, codigoHash);
+                    statement.setLong(3, System.currentTimeMillis());
+                    if (statement.executeUpdate() != 1) {
+                        throw new InvalidInvitationException();
+                    }
+                }
+
+                try (PreparedStatement statement = connection.prepareStatement("""
+                        INSERT INTO usuarios (nome, email, senha_hash, perfil, tutor_id)
+                        VALUES (?, ?, ?, 'FUNCIONARIO', ?)
+                        """)) {
+                    statement.setString(1, nome);
+                    statement.setString(2, email);
+                    statement.setString(3, senhaHash);
+                    statement.setLong(4, tutorId);
+                    statement.executeUpdate();
+                }
+                User user = findUserByEmail(connection, email);
+                connection.commit();
+                return createSession(user);
+            } catch (SQLException | RuntimeException exception) {
+                connection.rollback();
+                throw exception;
+            }
+        }
+    }
+
     public SessionData findSession(String token) {
         if (token == null || token.isBlank()) {
             return null;
@@ -190,6 +264,20 @@ public final class AuthService {
         byte[] bytes = new byte[32];
         RANDOM.nextBytes(bytes);
         return Base64.getUrlEncoder().withoutPadding().encodeToString(bytes);
+    }
+
+    public static String gerarCodigoConvite() {
+        return gerarTokenAleatorio();
+    }
+
+    public static String hashInvitationCode(String codigo) {
+        try {
+            byte[] digest = MessageDigest.getInstance("SHA-256")
+                    .digest(codigo.getBytes(StandardCharsets.US_ASCII));
+            return Base64.getEncoder().encodeToString(digest);
+        } catch (java.security.NoSuchAlgorithmException exception) {
+            throw new IllegalStateException("SHA-256 não está disponível nesta instalação do Java.", exception);
+        }
     }
 
     public static String requirePassword(String password) {
@@ -313,6 +401,12 @@ public final class AuthService {
     public static final class DuplicateEmailException extends RuntimeException {
         public DuplicateEmailException() {
             super("Este e-mail já possui uma conta.");
+        }
+    }
+
+    public static final class InvalidInvitationException extends RuntimeException {
+        public InvalidInvitationException() {
+            super("Convite inválido, expirado ou já utilizado. Solicite outro à clínica.");
         }
     }
 }

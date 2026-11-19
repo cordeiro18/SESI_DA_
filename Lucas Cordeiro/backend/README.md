@@ -4,7 +4,7 @@
 
 Use a tarefa existente do VS Code **Clínica Veterinária: iniciar site e API** ou execute `iniciar.cmd` nesta pasta. O site fica disponível em `http://127.0.0.1:8081`.
 
-O primeiro início aplica uma migração aditiva: adiciona `usuarios.tutor_id` e um índice único para vincular uma conta de cliente ao próprio tutor. Os registros existentes não são apagados nem recriados. Uma conta vinculada a um tutor é tratada como `CLIENTE`; contas sem vínculo usam o perfil `ADMIN` ou `FUNCIONARIO` já armazenado.
+O primeiro início aplica uma migração aditiva: adiciona `usuarios.tutor_id` e os campos de convite em `tutores`, com índices únicos. Os registros existentes não são apagados nem recriados. Uma conta vinculada a um tutor é tratada como `CLIENTE`; contas sem vínculo usam o perfil `ADMIN` ou `FUNCIONARIO` já armazenado.
 
 ## Senhas dos funcionários existentes
 
@@ -18,7 +18,9 @@ Informe o e-mail da conta e digite a senha duas vezes. A senha não aparece no t
 
 ## Contas de cliente
 
-Na tela de login, escolha **Criar conta de cliente**. A conta é associada ao tutor criado nesse cadastro; o perfil não pode ser escolhido no navegador. Os dados de CPF são armazenados cifrados. A senha precisa ter pelo menos 12 caracteres.
+Para um tutor novo, escolha **Criar conta de cliente** na tela de login; o perfil não pode ser escolhido no navegador e o CPF é armazenado cifrado.
+
+Para um tutor já cadastrado, um funcionário deve confirmar a identidade presencialmente, abrir **Tutores** e gerar um convite. Entregue o código somente ao titular por um canal privado. O cliente escolhe **Tenho um convite** na tela de login e informa o código, o e-mail e uma senha de pelo menos 12 caracteres. O convite expira em 24 horas, só pode ser usado uma vez e o banco armazena apenas seu hash. Gerar um convite novo invalida o anterior.
 
 ## Proteções
 

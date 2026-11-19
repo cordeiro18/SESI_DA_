@@ -1,4 +1,5 @@
 let csrfToken = "";
+let modoFormulario = "login";
 
 function mostrarMensagem(elemento, texto, erro) {
     elemento.textContent = texto;
@@ -37,15 +38,18 @@ function irParaPainel(usuario) {
     window.location.replace(usuario.perfil === "CLIENTE" ? "/cliente" : "/funcionario");
 }
 
-function alternarFormulario(cadastro) {
-    document.getElementById("form-login").classList.toggle("escondido", cadastro);
-    document.getElementById("form-cadastro-cliente").classList.toggle("escondido", !cadastro);
+function alternarFormulario(modo) {
+    modoFormulario = modo;
+    document.getElementById("form-login").classList.toggle("escondido", modo !== "login");
+    document.getElementById("form-cadastro-cliente").classList.toggle("escondido", modo !== "cadastro");
+    document.getElementById("form-convite-cliente").classList.toggle("escondido", modo !== "convite");
+    document.getElementById("usar-convite").classList.toggle("escondido", modo !== "login");
     document.getElementById("texto-alternar").textContent =
-        cadastro ? "Já tem uma conta?" : "Ainda não tem uma conta?";
+        modo === "cadastro" ? "Já tem uma conta?" : modo === "convite" ? "Quer voltar?" : "Ainda não tem uma conta?";
     document.getElementById("alternar-formulario").textContent =
-        cadastro ? "Entrar" : "Criar conta de cliente";
+        modo === "cadastro" ? "Entrar" : modo === "convite" ? "Voltar ao login" : "Criar conta de cliente";
     document.getElementById("login-title").textContent =
-        cadastro ? "Crie sua conta" : "Acesse sua conta";
+        modo === "cadastro" ? "Crie sua conta" : modo === "convite" ? "Vincule seu cadastro" : "Acesse sua conta";
 }
 
 function enviarFormulario(formulario, rota, mensagemId, prepararDados) {
@@ -76,8 +80,10 @@ function enviarFormulario(formulario, rota, mensagemId, prepararDados) {
 
 document.addEventListener("DOMContentLoaded", function() {
     document.getElementById("alternar-formulario").addEventListener("click", function() {
-        const showRegistration = document.getElementById("form-login").classList.contains("escondido");
-        alternarFormulario(!showRegistration);
+        alternarFormulario(modoFormulario === "login" ? "cadastro" : "login");
+    });
+    document.getElementById("usar-convite").addEventListener("click", function() {
+        alternarFormulario("convite");
     });
 
     document.querySelectorAll("[data-password-toggle]").forEach(function(button) {
@@ -102,5 +108,10 @@ document.addEventListener("DOMContentLoaded", function() {
         "mensagem-cadastro",
         function(fields) { return fields; }
     );
-
+    enviarFormulario(
+        document.getElementById("form-convite-cliente"),
+        "/api/auth/register-existing",
+        "mensagem-convite",
+        function(fields) { return fields; }
+    );
 });
