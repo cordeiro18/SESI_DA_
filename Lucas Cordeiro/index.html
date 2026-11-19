@@ -1,0 +1,101 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clínica Veterinária</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="script.js" defer></script>
+</head>
+<body>
+
+    <aside class="sidebar">
+        <h2>🐾 VetCare</h2>
+
+        <nav>
+            <button type="button" class="ativo" data-pagina="inicio" onclick="mostrarPagina('inicio')">Início</button>
+            <button type="button" data-pagina="tutores" onclick="mostrarPagina('tutores')">Tutores</button>
+            <button type="button" data-pagina="pets" onclick="mostrarPagina('pets')">Pets</button>
+            <button type="button" data-pagina="agendamentos" onclick="mostrarPagina('agendamentos')">Agendamentos</button>
+        </nav>
+    </aside>
+
+    <main>
+        <header>
+            <h1>Sistema de Gestão Veterinária</h1>
+            <p>Bem-vindo ao painel administrativo</p>
+        </header>
+
+        <section id="inicio" class="pagina">
+            <h2>Visão geral</h2>
+
+            <div class="cards">
+                <div class="card">
+                    <h3>Tutores</h3>
+                    <p><strong id="total-tutores">0</strong> cadastrados</p>
+                </div>
+
+                <div class="card">
+                    <h3>Pets</h3>
+                    <p><strong id="total-pets">0</strong> cadastrados</p>
+                </div>
+
+                <div class="card">
+                    <h3>Agendamentos</h3>
+                    <p><strong id="total-agendamentos">0</strong> agendados</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="tutores" class="pagina escondido">
+            <h2>Cadastro de Tutores</h2>
+            <form id="form-tutor">
+                <label for="tutor-nome">Nome do tutor</label>
+                <input id="tutor-nome" name="nome" type="text" placeholder="Ex.: Ana Silva" required>
+                <label for="tutor-cpf">CPF</label>
+                <input id="tutor-cpf" name="cpf" type="text" inputmode="numeric" placeholder="Ex.: 000.000.000-00" required>
+                <label for="tutor-telefone">Telefone</label>
+                <input id="tutor-telefone" name="telefone" type="tel" placeholder="Ex.: (11) 99999-9999" required>
+                <button type="submit">Cadastrar tutor</button>
+                <p class="mensagem" id="mensagem-tutor" role="status"></p>
+            </form>
+            <h3 class="subtitulo">Tutores cadastrados</h3>
+            <ul class="lista-registros" id="lista-tutores"></ul>
+        </section>
+
+        <section id="pets" class="pagina escondido">
+            <h2>Cadastro de Pets</h2>
+            <form id="form-pet">
+                <label for="pet-nome">Nome do animal</label>
+                <input id="pet-nome" name="nome" type="text" placeholder="Ex.: Mel" required>
+                <label for="pet-especie">Espécie</label>
+                <input id="pet-especie" name="especie" type="text" placeholder="Ex.: Cachorro" required>
+                <label for="pet-raca">Raça</label>
+                <input id="pet-raca" name="raca" type="text" placeholder="Ex.: Vira-lata" required>
+                <button type="submit">Cadastrar pet</button>
+                <p class="mensagem" id="mensagem-pet" role="status"></p>
+            </form>
+            <h3 class="subtitulo">Pets cadastrados</h3>
+            <ul class="lista-registros" id="lista-pets"></ul>
+        </section>
+
+        <section id="agendamentos" class="pagina escondido">
+            <h2>Agendamentos</h2>
+            <form id="form-agendamento">
+                <label for="agendamento-pet">Nome do pet</label>
+                <input id="agendamento-pet" name="pet" type="text" placeholder="Ex.: Mel" required>
+                <label for="agendamento-data">Data</label>
+                <input id="agendamento-data" name="data" type="date" required>
+                <label for="agendamento-hora">Horário</label>
+                <input id="agendamento-hora" name="hora" type="time" required>
+                <button type="submit">Agendar consulta</button>
+                <p class="mensagem" id="mensagem-agendamento" role="status"></p>
+            </form>
+            <h3 class="subtitulo">Consultas agendadas</h3>
+            <ul class="lista-registros" id="lista-agendamentos"></ul>
+        </section>
+
+    </main>
+</body>
+</html>

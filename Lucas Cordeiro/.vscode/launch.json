@@ -1,0 +1,11 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Clínica Veterinária: testar conexão SQLite",
+            "request": "launch",
+            "mainClass": "br.com.clinicaveterinaria.Main"
+        }
+    ]
+}

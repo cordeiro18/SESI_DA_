@@ -1,0 +1,269 @@
+<?xml version="1.0" encoding="UTF-8"?><sqlb_project><db path="C:/Users/ALUNO/Desktop/SESI_DA_/Lucas Cordeiro/clinica.db" readonly="0" foreign_keys="1" case_sensitive_like="0" temp_store="0" wal_autocheckpoint="1000" synchronous="2"/><attached/><window><main_tabs open="structure browser pragmas query" current="0"/></window><tab_structure><column_width id="0" width="300"/><column_width id="1" width="0"/><column_width id="2" width="100"/><column_width id="3" width="2811"/><column_width id="4" width="0"/><expanded_item id="0" parent="1"/><expanded_item id="1" parent="1"/><expanded_item id="2" parent="1"/><expanded_item id="3" parent="1"/></tab_structure><tab_browse><table title="agendamentos" custom_title="0" dock_id="1" table="4,12:mainagendamentos"/><dock_state state="000000ff00000000fd00000001000000020000023800000215fc0100000001fb000000160064006f0063006b00420072006f00770073006500310100000000000002380000012400ffffff000002380000000000000004000000040000000800000008fc00000000"/><default_encoding codec=""/><browse_table_settings><table schema="main" name="agendamentos" show_row_id="0" encoding="" plot_x_axis="" unlock_view_pk="_rowid_" freeze_columns="0"><sort/><column_widths><column index="1" value="35"/><column index="2" value="46"/><column index="3" value="87"/><column index="4" value="49"/><column index="5" value="175"/><column index="6" value="87"/><column index="7" value="159"/></column_widths><filter_values/><conditional_formats/><row_id_formats/><display_formats/><hidden_columns/><plot_y_axes/><global_filter/></table></browse_table_settings></tab_browse><tab_sql><sql name="SQL 1*">
+-- ==========================================
+-- SISTEMA DE GESTAO VETERINARIA - VETCARE
+-- SCRIPT DE CRIACAO E POPULACAO DO BANCO
+-- Banco de dados: SQLite
+-- ==========================================
+
+PRAGMA foreign_keys = ON;
+
+-- ==========================================
+-- 1. LIMPEZA DAS TABELAS
+-- ==========================================
+
+DROP TABLE IF EXISTS agendamentos;
+DROP TABLE IF EXISTS pets;
+DROP TABLE IF EXISTS tutores;
+DROP TABLE IF EXISTS usuarios;
+
+-- ==========================================
+-- 2. TABELA DE USUARIOS
+-- ==========================================
+
+CREATE TABLE usuarios (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    email TEXT NOT NULL UNIQUE,
+    senha_hash TEXT NOT NULL,
+    perfil TEXT NOT NULL DEFAULT 'FUNCIONARIO'
+        CHECK (perfil IN ('ADMIN', 'FUNCIONARIO')),
+    criado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ==========================================
+-- 3. TABELA DE TUTORES
+-- ==========================================
+
+CREATE TABLE tutores (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    nome TEXT NOT NULL,
+    cpf_cifrado TEXT UNIQUE,
+    telefone TEXT NOT NULL,
+    endereco TEXT,
+    criado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ==========================================
+-- 4. TABELA DE PETS
+-- ==========================================
+
+CREATE TABLE pets (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tutor_id INTEGER NOT NULL,
+    nome TEXT NOT NULL,
+    especie TEXT NOT NULL,
+    raca TEXT,
+    data_nascimento TEXT,
+    sexo TEXT CHECK (sexo IN ('M', 'F', 'NAO INFORMADO')),
+    criado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (tutor_id)
+        REFERENCES tutores(id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+);
+
+-- ==========================================
+-- 5. TABELA DE AGENDAMENTOS
+-- ==========================================
+
+CREATE TABLE agendamentos (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    pet_id INTEGER NOT NULL,
+    data TEXT NOT NULL,
+    horario TEXT NOT NULL,
+    motivo TEXT NOT NULL,
+    status TEXT NOT NULL DEFAULT 'AGENDADO'
+        CHECK (status IN (
+            'AGENDADO',
+            'CONFIRMADO',
+            'CONCLUIDO',
+            'CANCELADO'
+        )),
+    criado_em TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    FOREIGN KEY (pet_id)
+        REFERENCES pets(id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT,
+
+    UNIQUE (data, horario, pet_id)
+);
+
+-- ==========================================
+-- 6. INDICES PARA MELHORAR AS CONSULTAS
+-- ==========================================
+
+CREATE INDEX idx_tutores_nome
+ON tutores(nome);
+
+CREATE INDEX idx_pets_tutor
+ON pets(tutor_id);
+
+CREATE INDEX idx_agendamentos_data
+ON agendamentos(data);
+
+CREATE INDEX idx_agendamentos_pet
+ON agendamentos(pet_id);
+
+-- ==========================================
+-- 7. POPULACAO DA TABELA DE USUARIOS
+-- ==========================================
+
+INSERT INTO usuarios (nome, email, senha_hash, perfil)
+VALUES
+(
+    'Administrador',
+    'admin@vetcare.com',
+    'HASH_BCRYPT_A_CONFIGURAR',
+    'ADMIN'
+),
+(
+    'Funcionario Demo',
+    'funcionario@vetcare.com',
+    'HASH_BCRYPT_A_CONFIGURAR',
+    'FUNCIONARIO'
+);
+
+-- ==========================================
+-- 8. POPULACAO DA TABELA DE TUTORES
+-- ==========================================
+
+INSERT INTO tutores (nome, cpf_cifrado, telefone, endereco)
+VALUES
+(
+    'Mariana Oliveira',
+    NULL,
+    '(46) 99999-1111',
+    'Centro - Dois Vizinhos'
+),
+(
+    'Carlos Mendes',
+    NULL,
+    '(46) 98888-2222',
+    'Bairro São Francisco - Dois Vizinhos'
+),
+(
+    'Ana Rodrigues',
+    NULL,
+    '(46) 97777-3333',
+    'Centro - Dois Vizinhos'
+);
+
+-- ==========================================
+-- 9. POPULACAO DA TABELA DE PETS
+-- ==========================================
+
+INSERT INTO pets
+(tutor_id, nome, especie, raca, data_nascimento, sexo)
+VALUES
+(
+    1,
+    'Thor',
+    'Cachorro',
+    'Labrador',
+    '2022-05-10',
+    'M'
+),
+(
+    1,
+    'Mel',
+    'Gato',
+    'Persa',
+    '2023-08-15',
+    'F'
+),
+(
+    2,
+    'Bob',
+    'Cachorro',
+    'Poodle',
+    '2021-03-20',
+    'M'
+),
+(
+    3,
+    'Luna',
+    'Gato',
+    'Siamês',
+    '2024-01-12',
+    'F'
+);
+
+-- ==========================================
+-- 10. POPULACAO DOS AGENDAMENTOS
+-- ==========================================
+
+INSERT INTO agendamentos
+(pet_id, data, horario, motivo, status)
+VALUES
+(
+    1,
+    '2026-12-01',
+    '09:00',
+    'Consulta de rotina',
+    'AGENDADO'
+),
+(
+    2,
+    '2026-12-01',
+    '10:00',
+    'Vacinação',
+    'CONFIRMADO'
+),
+(
+    3,
+    '2026-12-02',
+    '14:00',
+    'Avaliação veterinária',
+    'AGENDADO'
+),
+(
+    4,
+    '2026-12-03',
+    '15:30',
+    'Consulta de rotina',
+    'AGENDADO'
+);
+
+-- ==========================================
+-- 11. CONSULTAS PARA CONFERENCIA
+-- ==========================================
+
+-- Listar usuarios
+SELECT id, nome, email, perfil
+FROM usuarios;
+
+-- Listar tutores
+SELECT * FROM tutores;
+
+-- Listar pets com seus tutores
+SELECT
+    pets.id,
+    pets.nome AS pet,
+    pets.especie,
+    pets.raca,
+    tutores.nome AS tutor
+FROM pets
+INNER JOIN tutores
+ON pets.tutor_id = tutores.id;
+
+-- Listar agendamentos completos
+SELECT
+    agendamentos.id,
+    pets.nome AS pet,
+    tutores.nome AS tutor,
+    agendamentos.data,
+    agendamentos.horario,
+    agendamentos.motivo,
+    agendamentos.status
+FROM agendamentos
+INNER JOIN pets
+ON agendamentos.pet_id = pets.id
+INNER JOIN tutores
+ON pets.tutor_id = tutores.id;
+
+-- ==========================================
+-- FIM DO SCRIPT
+-- ==========================================
+</sql><current_tab id="0"/></tab_sql></sqlb_project>
