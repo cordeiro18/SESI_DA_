@@ -1,5 +1,9 @@
 # Acesso ao sistema DogMania
 
+## Inicializar com duplo clique
+
+Execute `Iniciar DogMania.cmd` na pasta principal do projeto. O inicializador verifica se a API já está ativa; se não estiver, inicia o backend e aguarda a conexão antes de abrir a tela de login no navegador.
+
 ## Iniciar o site
 
 Use a tarefa existente do VS Code **Clínica Veterinária: iniciar site e API** ou execute `iniciar.cmd` nesta pasta. O site fica disponível em `http://127.0.0.1:8081`.
