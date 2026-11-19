@@ -67,6 +67,16 @@ header h1 {
     margin-bottom: 8px;
 }
 
+.api-status {
+    margin-top: 10px;
+    color: #237864;
+    font-size: 13px;
+}
+
+.api-status.erro {
+    color: #a12e2e;
+}
+
 .cards {
     display: flex;
     gap: 20px;
@@ -112,7 +122,8 @@ header h1 {
     font-weight: 600;
 }
 
-.pagina input {
+.pagina input,
+.pagina select {
     display: block;
     width: 100%;
     padding: 12px;
@@ -122,9 +133,15 @@ header h1 {
     font-size: 15px;
 }
 
-.pagina input:focus {
+.pagina input:focus,
+.pagina select:focus {
     border-color: #237864;
     outline: 3px solid #23786422;
+}
+
+.pagina select:disabled {
+    color: #788681;
+    background: #f2f6f4;
 }
 
 .pagina button {

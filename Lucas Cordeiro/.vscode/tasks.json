@@ -18,15 +18,18 @@
             "problemMatcher": "$javac"
         },
         {
-            "label": "Clínica Veterinária: testar conexão SQLite",
+            "label": "Clínica Veterinária: iniciar site e API",
             "type": "shell",
-            "command": "${workspaceFolder}\\backend\\mvnw.cmd",
+            "command": "powershell.exe",
             "args": [
-                "compile",
-                "exec:java"
+                "-NoProfile",
+                "-ExecutionPolicy",
+                "Bypass",
+                "-File",
+                "${workspaceFolder}\\backend\\iniciar.ps1"
             ],
             "options": {
-                "cwd": "${workspaceFolder}\\backend"
+                "cwd": "${workspaceFolder}"
             },
             "problemMatcher": []
         }

@@ -3,7 +3,7 @@
     "configurations": [
         {
             "type": "java",
-            "name": "Clínica Veterinária: testar conexão SQLite",
+            "name": "Clínica Veterinária: iniciar site e API",
             "request": "launch",
             "mainClass": "br.com.clinicaveterinaria.Main"
         }

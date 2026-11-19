@@ -25,6 +25,7 @@
         <header>
             <h1>Sistema de Gestão Veterinária</h1>
             <p>Bem-vindo ao painel administrativo</p>
+            <p id="api-status" class="api-status" role="status">Conectando ao backend...</p>
         </header>
 
         <section id="inicio" class="pagina">
@@ -67,6 +68,10 @@
         <section id="pets" class="pagina escondido">
             <h2>Cadastro de Pets</h2>
             <form id="form-pet">
+                <label for="pet-tutor">Tutor responsável</label>
+                <select id="pet-tutor" name="tutorId" required>
+                    <option value="">Carregando tutores...</option>
+                </select>
                 <label for="pet-nome">Nome do animal</label>
                 <input id="pet-nome" name="nome" type="text" placeholder="Ex.: Mel" required>
                 <label for="pet-especie">Espécie</label>
@@ -83,12 +88,16 @@
         <section id="agendamentos" class="pagina escondido">
             <h2>Agendamentos</h2>
             <form id="form-agendamento">
-                <label for="agendamento-pet">Nome do pet</label>
-                <input id="agendamento-pet" name="pet" type="text" placeholder="Ex.: Mel" required>
+                <label for="agendamento-pet">Pet</label>
+                <select id="agendamento-pet" name="petId" required>
+                    <option value="">Carregando pets...</option>
+                </select>
                 <label for="agendamento-data">Data</label>
                 <input id="agendamento-data" name="data" type="date" required>
                 <label for="agendamento-hora">Horário</label>
                 <input id="agendamento-hora" name="hora" type="time" required>
+                <label for="agendamento-motivo">Motivo do atendimento</label>
+                <input id="agendamento-motivo" name="motivo" type="text" placeholder="Ex.: Consulta de rotina" required>
                 <button type="submit">Agendar consulta</button>
                 <p class="mensagem" id="mensagem-agendamento" role="status"></p>
             </form>
