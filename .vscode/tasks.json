@@ -1,0 +1,15 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Clínica Veterinária: iniciar site e API",
+            "type": "shell",
+            "command": "${workspaceFolder}\\Lucas Cordeiro\\backend\\iniciar.cmd",
+            "args": [],
+            "options": {
+                "cwd": "${workspaceFolder}"
+            },
+            "problemMatcher": []
+        }
+    ]
+}

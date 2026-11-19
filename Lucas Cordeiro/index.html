@@ -11,97 +11,139 @@
 <body>
 
     <aside class="sidebar">
-        <h2>🐾 VetCare</h2>
+        <a class="brand" href="#inicio" onclick="mostrarPagina('inicio')">
+            <span class="brand-icon" aria-hidden="true">🐾</span>
+            <span class="brand-copy"><strong>VetCare</strong><small>CLÍNICA VETERINÁRIA</small></span>
+        </a>
 
-        <nav>
+        <p class="nav-caption">MENU PRINCIPAL</p>
+        <nav aria-label="Navegação principal">
             <button type="button" class="ativo" data-pagina="inicio" onclick="mostrarPagina('inicio')">Início</button>
             <button type="button" data-pagina="tutores" onclick="mostrarPagina('tutores')">Tutores</button>
             <button type="button" data-pagina="pets" onclick="mostrarPagina('pets')">Pets</button>
             <button type="button" data-pagina="agendamentos" onclick="mostrarPagina('agendamentos')">Agendamentos</button>
         </nav>
+
+        <div class="sidebar-note">
+            <span class="sidebar-note-icon" aria-hidden="true">♡</span>
+            <div><strong>Cuidado de verdade</strong><span>Para quem faz parte da família.</span></div>
+        </div>
     </aside>
 
     <main>
         <header>
-            <h1>Sistema de Gestão Veterinária</h1>
-            <p>Bem-vindo ao painel administrativo</p>
+            <div class="header-copy">
+                <p class="eyebrow">PAINEL DA CLÍNICA</p>
+                <h1>Sistema de Gestão Veterinária</h1>
+                <p>Bem-vindo de volta! Veja o que está acontecendo hoje.</p>
+            </div>
+            <div class="header-profile" aria-label="Perfil da clínica">
+                <span class="profile-avatar" aria-hidden="true">VC</span>
+                <span><strong>VetCare</strong><small>Administração</small></span>
+            </div>
             <p id="api-status" class="api-status" role="status">Conectando ao backend...</p>
         </header>
 
         <section id="inicio" class="pagina">
-            <h2>Visão geral</h2>
+            <div class="welcome-banner">
+                <div class="welcome-copy">
+                    <p class="eyebrow eyebrow-light">CUIDADO E CARINHO EM CADA DETALHE</p>
+                    <h2>Um lugar melhor para cuidar.</h2>
+                    <p>Organize a rotina da clínica e acompanhe cada paciente com todo o carinho que ele merece.</p>
+                    <button class="hero-button" type="button" onclick="mostrarPagina('agendamentos')">
+                        Ver agendamentos <span aria-hidden="true">→</span>
+                    </button>
+                </div>
+                <div class="welcome-art" aria-hidden="true">
+                    <span class="art-ring"></span>
+                    <span class="art-paw">🐾</span>
+                    <span class="art-spark art-spark-one">✦</span>
+                    <span class="art-spark art-spark-two">✦</span>
+                </div>
+            </div>
+
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">RESUMO DA CLÍNICA</p>
+                    <h2>Visão geral</h2>
+                </div>
+                <span class="section-note">Seus números em um só lugar</span>
+            </div>
 
             <div class="cards">
-                <div class="card">
-                    <h3>Tutores</h3>
-                    <p><strong id="total-tutores">0</strong> cadastrados</p>
+                <div class="card card-tutores">
+                    <div class="card-heading"><span class="stat-icon">♙</span><span class="stat-label">Tutores</span></div>
+                    <p class="stat-value"><strong id="total-tutores">0</strong><span>cadastrados</span></p>
+                    <p class="card-caption">Responsáveis pela família de cada pet</p>
                 </div>
 
-                <div class="card">
-                    <h3>Pets</h3>
-                    <p><strong id="total-pets">0</strong> cadastrados</p>
+                <div class="card card-pets">
+                    <div class="card-heading"><span class="stat-icon">♡</span><span class="stat-label">Pets</span></div>
+                    <p class="stat-value"><strong id="total-pets">0</strong><span>cadastrados</span></p>
+                    <p class="card-caption">Pacientes acompanhados pela clínica</p>
                 </div>
 
-                <div class="card">
-                    <h3>Agendamentos</h3>
-                    <p><strong id="total-agendamentos">0</strong> agendados</p>
+                <div class="card card-agendamentos">
+                    <div class="card-heading"><span class="stat-icon">▦</span><span class="stat-label">Agendamentos</span></div>
+                    <p class="stat-value"><strong id="total-agendamentos">0</strong><span>agendados</span></p>
+                    <p class="card-caption">Consultas organizadas na agenda</p>
                 </div>
             </div>
         </section>
 
         <section id="tutores" class="pagina escondido">
-            <h2>Cadastro de Tutores</h2>
+            <div class="page-heading">
+                <span class="page-icon">♙</span>
+                <div><p class="eyebrow">RESPONSÁVEIS</p><h2>Cadastro de tutores</h2><p>Adicione e acompanhe os responsáveis pelos pacientes.</p></div>
+            </div>
             <form id="form-tutor">
-                <label for="tutor-nome">Nome do tutor</label>
-                <input id="tutor-nome" name="nome" type="text" placeholder="Ex.: Ana Silva" required>
-                <label for="tutor-cpf">CPF</label>
-                <input id="tutor-cpf" name="cpf" type="text" inputmode="numeric" placeholder="Ex.: 000.000.000-00" required>
-                <label for="tutor-telefone">Telefone</label>
-                <input id="tutor-telefone" name="telefone" type="tel" placeholder="Ex.: (11) 99999-9999" required>
-                <button type="submit">Cadastrar tutor</button>
+                <div class="form-grid">
+                    <div class="field"><label for="tutor-nome">Nome completo</label><input id="tutor-nome" name="nome" type="text" placeholder="Ex.: Ana Silva" required></div>
+                    <div class="field"><label for="tutor-cpf">CPF</label><input id="tutor-cpf" name="cpf" type="text" inputmode="numeric" placeholder="000.000.000-00" required></div>
+                    <div class="field"><label for="tutor-telefone">Telefone</label><input id="tutor-telefone" name="telefone" type="tel" placeholder="(11) 99999-9999" required></div>
+                    <div class="form-actions"><button type="submit">Cadastrar tutor <span aria-hidden="true">→</span></button></div>
+                </div>
                 <p class="mensagem" id="mensagem-tutor" role="status"></p>
             </form>
-            <h3 class="subtitulo">Tutores cadastrados</h3>
+            <div class="list-heading"><h3>Tutores cadastrados</h3><span>Dados protegidos</span></div>
             <ul class="lista-registros" id="lista-tutores"></ul>
         </section>
 
         <section id="pets" class="pagina escondido">
-            <h2>Cadastro de Pets</h2>
+            <div class="page-heading">
+                <span class="page-icon page-icon-pet">♡</span>
+                <div><p class="eyebrow">PACIENTES</p><h2>Cadastro de pets</h2><p>Mantenha os dados dos animais sempre organizados.</p></div>
+            </div>
             <form id="form-pet">
-                <label for="pet-tutor">Tutor responsável</label>
-                <select id="pet-tutor" name="tutorId" required>
-                    <option value="">Carregando tutores...</option>
-                </select>
-                <label for="pet-nome">Nome do animal</label>
-                <input id="pet-nome" name="nome" type="text" placeholder="Ex.: Mel" required>
-                <label for="pet-especie">Espécie</label>
-                <input id="pet-especie" name="especie" type="text" placeholder="Ex.: Cachorro" required>
-                <label for="pet-raca">Raça</label>
-                <input id="pet-raca" name="raca" type="text" placeholder="Ex.: Vira-lata" required>
-                <button type="submit">Cadastrar pet</button>
+                <div class="form-grid">
+                    <div class="field"><label for="pet-tutor">Tutor responsável</label><select id="pet-tutor" name="tutorId" required><option value="">Carregando tutores...</option></select></div>
+                    <div class="field"><label for="pet-nome">Nome do animal</label><input id="pet-nome" name="nome" type="text" placeholder="Ex.: Mel" required></div>
+                    <div class="field"><label for="pet-especie">Espécie</label><input id="pet-especie" name="especie" type="text" placeholder="Ex.: Cachorro" required></div>
+                    <div class="field"><label for="pet-raca">Raça</label><input id="pet-raca" name="raca" type="text" placeholder="Ex.: Vira-lata" required></div>
+                    <div class="form-actions"><button type="submit">Cadastrar pet <span aria-hidden="true">→</span></button></div>
+                </div>
                 <p class="mensagem" id="mensagem-pet" role="status"></p>
             </form>
-            <h3 class="subtitulo">Pets cadastrados</h3>
+            <div class="list-heading"><h3>Pets cadastrados</h3><span>Pacientes da clínica</span></div>
             <ul class="lista-registros" id="lista-pets"></ul>
         </section>
 
         <section id="agendamentos" class="pagina escondido">
-            <h2>Agendamentos</h2>
+            <div class="page-heading">
+                <span class="page-icon page-icon-calendar">▦</span>
+                <div><p class="eyebrow">AGENDA DA CLÍNICA</p><h2>Agendamentos</h2><p>Organize os próximos atendimentos e consultas.</p></div>
+            </div>
             <form id="form-agendamento">
-                <label for="agendamento-pet">Pet</label>
-                <select id="agendamento-pet" name="petId" required>
-                    <option value="">Carregando pets...</option>
-                </select>
-                <label for="agendamento-data">Data</label>
-                <input id="agendamento-data" name="data" type="date" required>
-                <label for="agendamento-hora">Horário</label>
-                <input id="agendamento-hora" name="hora" type="time" required>
-                <label for="agendamento-motivo">Motivo do atendimento</label>
-                <input id="agendamento-motivo" name="motivo" type="text" placeholder="Ex.: Consulta de rotina" required>
-                <button type="submit">Agendar consulta</button>
+                <div class="form-grid">
+                    <div class="field"><label for="agendamento-pet">Pet</label><select id="agendamento-pet" name="petId" required><option value="">Carregando pets...</option></select></div>
+                    <div class="field"><label for="agendamento-data">Data</label><input id="agendamento-data" name="data" type="date" required></div>
+                    <div class="field"><label for="agendamento-hora">Horário</label><input id="agendamento-hora" name="hora" type="time" required></div>
+                    <div class="field"><label for="agendamento-motivo">Motivo do atendimento</label><input id="agendamento-motivo" name="motivo" type="text" placeholder="Ex.: Consulta de rotina" required></div>
+                    <div class="form-actions"><button type="submit">Agendar consulta <span aria-hidden="true">→</span></button></div>
+                </div>
                 <p class="mensagem" id="mensagem-agendamento" role="status"></p>
             </form>
-            <h3 class="subtitulo">Consultas agendadas</h3>
+            <div class="list-heading"><h3>Consultas agendadas</h3><span>Agenda atualizada pelo banco</span></div>
             <ul class="lista-registros" id="lista-agendamentos"></ul>
         </section>
 

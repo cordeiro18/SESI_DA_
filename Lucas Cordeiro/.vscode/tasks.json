@@ -20,14 +20,8 @@
         {
             "label": "Clínica Veterinária: iniciar site e API",
             "type": "shell",
-            "command": "powershell.exe",
-            "args": [
-                "-NoProfile",
-                "-ExecutionPolicy",
-                "Bypass",
-                "-File",
-                "${workspaceFolder}\\backend\\iniciar.ps1"
-            ],
+            "command": "${workspaceFolder}\\backend\\iniciar.cmd",
+            "args": [],
             "options": {
                 "cwd": "${workspaceFolder}"
             },

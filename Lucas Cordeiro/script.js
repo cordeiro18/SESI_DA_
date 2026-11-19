@@ -22,7 +22,18 @@ function mostrarPagina(paginaSelecionada) {
 }
 
 async function requisitar(url, opcoes) {
-    const resposta = await fetch(url, opcoes);
+    let resposta;
+    try {
+        resposta = await fetch(url, opcoes);
+    } catch (erro) {
+        throw new Error("Inicie o site pelo VS Code para conectar ao backend.");
+    }
+
+    const tipoConteudo = resposta.headers.get("content-type") || "";
+    if (!tipoConteudo.includes("application/json")) {
+        throw new Error("Abra o site pelo backend em http://127.0.0.1:8081.");
+    }
+
     const dados = await resposta.json();
     if (!resposta.ok) {
         throw new Error(dados.erro || "A solicitação não foi concluída.");
