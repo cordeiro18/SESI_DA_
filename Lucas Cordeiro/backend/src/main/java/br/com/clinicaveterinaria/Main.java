@@ -12,12 +12,22 @@ public final class Main {
     }
 
     public static void main(String[] args) throws IOException, java.sql.SQLException {
+        if (args.length == 1 && args[0].equals("--redefinir-senha")) {
+            CredentialSetup.executar();
+            return;
+        }
+        if (args.length != 0) {
+            throw new IllegalArgumentException("Argumento de inicialização não reconhecido.");
+        }
+
+        DatabaseMigration.aplicar();
         int port = readPort();
         ClinicaService service = new ClinicaService();
+        AuthService authService = new AuthService();
         long tutorCount = service.contarTutores();
         HttpServer server = HttpServer.create(
                 new InetSocketAddress(InetAddress.getByName("127.0.0.1"), port), 0);
-        server.createContext("/", new ApiServer(service)::handle);
+        server.createContext("/", new ApiServer(service, authService)::handle);
         server.start();
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> server.stop(1)));

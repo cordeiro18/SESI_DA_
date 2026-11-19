@@ -1,129 +1,191 @@
 let tutores = [];
 let pets = [];
 let agendamentos = [];
+let csrfToken = "";
+let registroEmEdicao = null;
 
-function mostrarPagina(paginaSelecionada) {
-    const pagina = document.getElementById(paginaSelecionada);
-    if (!pagina || !pagina.classList.contains("pagina")) return;
-
+function mostrarPagina(pageId) {
+    const page = document.getElementById(pageId);
+    if (!page || !page.classList.contains("pagina")) return;
     document.querySelectorAll(".pagina").forEach(function(item) {
-        item.classList.toggle("escondido", item !== pagina);
+        item.classList.toggle("escondido", item !== page);
     });
+    document.querySelectorAll("[data-pagina]").forEach(function(button) {
+        const selected = button.dataset.pagina === pageId;
+        button.classList.toggle("ativo", selected);
+        if (selected) button.setAttribute("aria-current", "page");
+        else button.removeAttribute("aria-current");
+    });
+}
 
-    document.querySelectorAll("[data-pagina]").forEach(function(botao) {
-        const selecionado = botao.dataset.pagina === paginaSelecionada;
-        botao.classList.toggle("ativo", selecionado);
-        if (selecionado) {
-            botao.setAttribute("aria-current", "page");
-        } else {
-            botao.removeAttribute("aria-current");
-        }
-    });
+function mensagemDeErro(error) {
+    return error && error.message
+        ? error.message
+        : "Não foi possível concluir a solicitação.";
 }
 
 async function requisitar(url, opcoes) {
-    let resposta;
+    const options = { ...opcoes };
+    const headers = new Headers(options.headers || {});
+    if (options.body && !headers.has("Content-Type")) {
+        headers.set("Content-Type", "application/json");
+    }
+    if (csrfToken && options.method && options.method !== "GET") {
+        headers.set("X-CSRF-Token", csrfToken);
+    }
+    options.headers = headers;
+
+    let response;
     try {
-        resposta = await fetch(url, opcoes);
-    } catch (erro) {
-        throw new Error("Inicie o site pelo VS Code para conectar ao backend.");
+        response = await fetch(url, options);
+    } catch (error) {
+        throw new Error("Não foi possível conectar ao backend. Inicie o site pelo VS Code.");
     }
-
-    const tipoConteudo = resposta.headers.get("content-type") || "";
-    if (!tipoConteudo.includes("application/json")) {
-        throw new Error("Abra o site pelo backend em http://127.0.0.1:8081.");
+    const contentType = response.headers.get("content-type") || "";
+    if (!contentType.includes("application/json")) {
+        throw new Error("O servidor respondeu em um formato inesperado. Tente novamente.");
     }
-
-    const dados = await resposta.json();
-    if (!resposta.ok) {
-        throw new Error(dados.erro || "A solicitação não foi concluída.");
+    const data = await response.json();
+    if (response.status === 401) {
+        window.location.replace("/login");
+        throw new Error("Sua sessão expirou. Entre novamente.");
     }
-    return dados;
+    if (!response.ok) {
+        throw new Error(data.erro || "A solicitação não foi concluída.");
+    }
+    return data;
 }
 
-function exibirMensagem(elemento, texto, erro) {
-    elemento.textContent = texto;
-    elemento.classList.toggle("erro", Boolean(erro));
+function exibirMensagem(element, text, isError) {
+    element.textContent = text;
+    element.classList.toggle("erro", Boolean(isError));
 }
 
-function mensagemDeErro(erro) {
-    if (erro instanceof TypeError) {
-        return "Não foi possível conectar ao backend. Inicie o site pelo comando Maven e tente novamente.";
-    }
-    return erro.message || "Ocorreu um erro inesperado.";
+function criarOpcao(value, text) {
+    const option = document.createElement("option");
+    option.value = value;
+    option.textContent = text;
+    return option;
 }
 
-function criarOpcao(valor, texto) {
-    const opcao = document.createElement("option");
-    opcao.value = valor;
-    opcao.textContent = texto;
-    return opcao;
-}
-
-function atualizarSelecao(elemento, registros, textoVazio, formatar) {
-    elemento.replaceChildren(criarOpcao("", textoVazio));
-    registros.forEach(function(registro) {
-        elemento.append(criarOpcao(registro.id, formatar(registro)));
+function atualizarSelecao(element, records, emptyLabel, format) {
+    element.replaceChildren(criarOpcao("", emptyLabel));
+    records.forEach(function(record) {
+        element.append(criarOpcao(record.id, format(record)));
     });
-    elemento.disabled = registros.length === 0;
+    element.disabled = records.length === 0;
 }
 
-function criarLinha(tipo, registro, rota) {
-    const linha = document.createElement("li");
-    linha.className = "registro";
+function limparEdicao() {
+    if (!registroEmEdicao) return;
+    const form = document.getElementById("form-" + registroEmEdicao.tipo);
+    const submit = form.querySelector('button[type="submit"]');
+    submit.textContent = registroEmEdicao.labelOriginal;
+    form.reset();
+    if (registroEmEdicao.tipo === "tutor") {
+        document.getElementById("tutor-cpf").disabled = false;
+    }
+    registroEmEdicao = null;
+}
 
-    const informacoes = document.createElement("div");
-    const nome = document.createElement("strong");
-    const detalhes = document.createElement("span");
-    const botaoRemover = document.createElement("button");
+function iniciarEdicao(tipo, record) {
+    limparEdicao();
+    const form = document.getElementById("form-" + tipo);
+    const submit = form.querySelector('button[type="submit"]');
+    registroEmEdicao = {
+        tipo: tipo,
+        id: record.id,
+        registro: record,
+        labelOriginal: submit.textContent
+    };
+    if (tipo === "tutor") {
+        form.elements.nome.value = record.nome;
+        form.elements.telefone.value = record.telefone;
+        document.getElementById("tutor-cpf").disabled = true;
+    } else if (tipo === "pet") {
+        form.elements.tutorId.value = record.tutorId;
+        form.elements.nome.value = record.nome;
+        form.elements.especie.value = record.especie;
+        form.elements.raca.value = record.raca || "";
+    } else {
+        form.elements.petId.value = record.petId;
+        form.elements.data.value = record.data;
+        form.elements.hora.value = record.horario.slice(0, 5);
+        form.elements.motivo.value = record.motivo;
+    }
+    submit.textContent = "Salvar alterações";
+    mostrarPagina(tipo === "tutor" ? "tutores" : tipo === "pet" ? "pets" : "agendamentos");
+    form.scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function criarLinha(tipo, record, route) {
+    const row = document.createElement("li");
+    row.className = "registro";
+    const info = document.createElement("div");
+    const name = document.createElement("strong");
+    const details = document.createElement("span");
 
     if (tipo === "tutores") {
-        nome.textContent = registro.nome;
-        detalhes.textContent = "Telefone: " + registro.telefone + " · CPF protegido no banco";
+        name.textContent = record.nome;
+        details.textContent = "Telefone: " + record.telefone + " · CPF protegido no banco";
     } else if (tipo === "pets") {
-        nome.textContent = registro.nome;
-        detalhes.textContent = registro.especie + " · " + (registro.raca || "Raça não informada")
-            + " · Tutor: " + registro.tutorNome;
+        name.textContent = record.nome;
+        details.textContent = record.especie + " · " + (record.raca || "Raça não informada")
+            + " · Tutor: " + record.tutorNome;
     } else {
-        nome.textContent = registro.pet;
-        const data = new Intl.DateTimeFormat("pt-BR").format(new Date(registro.data + "T00:00:00"));
-        detalhes.textContent = data + " às " + registro.horario + " · " + registro.motivo + " · " + registro.status;
+        name.textContent = record.pet;
+        const date = new Intl.DateTimeFormat("pt-BR").format(new Date(record.data + "T00:00:00"));
+        details.textContent = date + " às " + record.horario + " · " + record.motivo + " · " + record.status;
     }
+    info.append(name, details);
 
-    botaoRemover.type = "button";
-    botaoRemover.className = "remover";
-    botaoRemover.textContent = "Remover";
-    botaoRemover.addEventListener("click", async function() {
-        if (!window.confirm("Deseja remover este registro?")) return;
+    const actions = document.createElement("div");
+    actions.className = "registro-acoes";
+    const edit = document.createElement("button");
+    edit.type = "button";
+    edit.className = "editar";
+    edit.textContent = "Editar";
+    edit.addEventListener("click", function() {
+        const formType = tipo === "tutores" ? "tutor" : tipo === "pets" ? "pet" : "agendamento";
+        iniciarEdicao(formType, record);
+    });
+    actions.append(edit);
+
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "remover";
+    remove.textContent = tipo === "agendamentos" ? "Cancelar" : "Remover";
+    remove.addEventListener("click", async function() {
+        const question = tipo === "agendamentos"
+            ? "Deseja cancelar este agendamento?"
+            : "Deseja remover este registro?";
+        if (!window.confirm(question)) return;
         try {
-            await requisitar(rota + "/" + registro.id, { method: "DELETE" });
+            await requisitar(route + "/" + record.id, { method: "DELETE" });
             await carregarDados();
-        } catch (erro) {
-            window.alert(mensagemDeErro(erro));
+        } catch (error) {
+            window.alert(mensagemDeErro(error));
         }
     });
-
-    informacoes.append(nome, detalhes);
-    linha.append(informacoes, botaoRemover);
-    return linha;
+    actions.append(remove);
+    row.append(info, actions);
+    return row;
 }
 
-function renderizarLista(tipo, registros, rota) {
-    const lista = document.getElementById("lista-" + tipo);
-    lista.replaceChildren();
-
-    if (registros.length === 0) {
-        const vazio = document.createElement("li");
-        vazio.className = "lista-vazia";
-        vazio.textContent = "Nenhum registro cadastrado.";
-        lista.append(vazio);
+function renderizarLista(tipo, records, route) {
+    const list = document.getElementById("lista-" + tipo);
+    list.replaceChildren();
+    if (records.length === 0) {
+        const empty = document.createElement("li");
+        empty.className = "lista-vazia";
+        empty.textContent = "Nenhum registro cadastrado.";
+        list.append(empty);
     } else {
-        registros.forEach(function(registro) {
-            lista.append(criarLinha(tipo, registro, rota));
+        records.forEach(function(record) {
+            list.append(criarLinha(tipo, record, route));
         });
     }
-
-    document.getElementById("total-" + tipo).textContent = registros.length;
+    document.getElementById("total-" + tipo).textContent = records.length;
 }
 
 function atualizarTela() {
@@ -147,79 +209,94 @@ function atualizarTela() {
 async function carregarDados() {
     const status = document.getElementById("api-status");
     exibirMensagem(status, "Carregando dados do banco...", false);
-    const resultados = await Promise.all([
-        requisitar("/api/tutores"),
-        requisitar("/api/pets"),
-        requisitar("/api/agendamentos")
+    [tutores, pets, agendamentos] = await Promise.all([
+        requisitar("/api/tutores", { method: "GET" }),
+        requisitar("/api/pets", { method: "GET" }),
+        requisitar("/api/agendamentos", { method: "GET" })
     ]);
-    [tutores, pets, agendamentos] = resultados;
     atualizarTela();
     exibirMensagem(status, "Conectado ao banco de dados.", false);
 }
 
-function cadastrar(formulario, rota, mensagemId, prepararDados) {
-    formulario.addEventListener("submit", async function(evento) {
-        evento.preventDefault();
-        const botao = formulario.querySelector('button[type="submit"]');
-        const mensagem = document.getElementById(mensagemId);
-        botao.disabled = true;
-        exibirMensagem(mensagem, "Salvando no banco de dados...", false);
+function prepararDados(tipo, fields) {
+    if (tipo === "pet") {
+        return { ...fields, tutorId: Number(fields.tutorId) };
+    }
+    if (tipo === "agendamento") {
+        const data = { ...fields, petId: Number(fields.petId), horario: fields.hora };
+        if (registroEmEdicao) data.status = registroEmEdicao.registro.status;
+        return data;
+    }
+    return fields;
+}
 
+function configurarFormulario(tipo, route, messageId) {
+    const form = document.getElementById("form-" + tipo);
+    form.addEventListener("submit", async function(event) {
+        event.preventDefault();
+        const button = form.querySelector('button[type="submit"]');
+        const message = document.getElementById(messageId);
+        const edit = registroEmEdicao && registroEmEdicao.tipo === tipo
+            ? registroEmEdicao
+            : null;
+        button.disabled = true;
+        exibirMensagem(message, "Salvando no banco de dados...", false);
         try {
-            const campos = Object.fromEntries(new FormData(formulario).entries());
-            await requisitar(rota, {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(prepararDados(campos))
+            const fields = Object.fromEntries(new FormData(form).entries());
+            const url = edit ? route + "/" + edit.id : route;
+            await requisitar(url, {
+                method: edit ? "PUT" : "POST",
+                body: JSON.stringify(prepararDados(tipo, fields))
             });
-            formulario.reset();
+            limparEdicao();
+            form.reset();
             await carregarDados();
-            exibirMensagem(mensagem, "Cadastro salvo no banco de dados.", false);
-        } catch (erro) {
-            exibirMensagem(mensagem, mensagemDeErro(erro), true);
+            exibirMensagem(message, "Dados salvos com sucesso.", false);
+        } catch (error) {
+            exibirMensagem(message, mensagemDeErro(error), true);
         } finally {
-            botao.disabled = false;
+            button.disabled = false;
         }
     });
 }
 
-document.addEventListener("DOMContentLoaded", function() {
-    cadastrar(
-        document.getElementById("form-tutor"),
-        "/api/tutores",
-        "mensagem-tutor",
-        function(campos) { return campos; }
-    );
-    cadastrar(
-        document.getElementById("form-pet"),
-        "/api/pets",
-        "mensagem-pet",
-        function(campos) {
-            return { ...campos, tutorId: Number(campos.tutorId) };
+document.addEventListener("DOMContentLoaded", async function() {
+    document.querySelectorAll("[data-pagina]").forEach(function(button) {
+        button.addEventListener("click", function(event) {
+            event.preventDefault();
+            mostrarPagina(button.dataset.pagina);
+        });
+    });
+    document.getElementById("sair").addEventListener("click", async function() {
+        try {
+            await requisitar("/api/auth/logout", { method: "POST" });
+        } catch (error) {
+            window.alert(mensagemDeErro(error));
         }
-    );
-    cadastrar(
-        document.getElementById("form-agendamento"),
-        "/api/agendamentos",
-        "mensagem-agendamento",
-        function(campos) {
-            return { ...campos, petId: Number(campos.petId), horario: campos.hora };
-        }
-    );
+        window.location.replace("/login");
+    });
 
-    const dataAtual = new Date();
-    const campoData = document.getElementById("agendamento-data");
-    campoData.min = [
-        dataAtual.getFullYear(),
-        String(dataAtual.getMonth() + 1).padStart(2, "0"),
-        String(dataAtual.getDate()).padStart(2, "0")
+    configurarFormulario("tutor", "/api/tutores", "mensagem-tutor");
+    configurarFormulario("pet", "/api/pets", "mensagem-pet");
+    configurarFormulario("agendamento", "/api/agendamentos", "mensagem-agendamento");
+
+    const currentDate = new Date();
+    document.getElementById("agendamento-data").min = [
+        currentDate.getFullYear(),
+        String(currentDate.getMonth() + 1).padStart(2, "0"),
+        String(currentDate.getDate()).padStart(2, "0")
     ].join("-");
 
-    carregarDados().catch(function(erro) {
-        exibirMensagem(
-            document.getElementById("api-status"),
-            mensagemDeErro(erro),
-            true
-        );
-    });
+    try {
+        const session = await requisitar("/api/auth/me", { method: "GET" });
+        if (session.usuario.perfil === "CLIENTE") {
+            window.location.replace("/cliente");
+            return;
+        }
+        csrfToken = session.csrfToken;
+        document.getElementById("nome-funcionario").textContent = session.usuario.nome;
+        await carregarDados();
+    } catch (error) {
+        exibirMensagem(document.getElementById("api-status"), mensagemDeErro(error), true);
+    }
 });

@@ -11,17 +11,17 @@
 <body>
 
     <aside class="sidebar">
-        <a class="brand" href="#inicio" onclick="mostrarPagina('inicio')">
+        <a class="brand" href="#inicio" data-pagina="inicio">
             <span class="brand-icon" aria-hidden="true">🐾</span>
             <span class="brand-copy"><strong>DogMania</strong><small>CLÍNICA VETERINÁRIA</small></span>
         </a>
 
         <p class="nav-caption">MENU PRINCIPAL</p>
         <nav aria-label="Navegação principal">
-            <button type="button" class="ativo" data-pagina="inicio" onclick="mostrarPagina('inicio')">Início</button>
-            <button type="button" data-pagina="tutores" onclick="mostrarPagina('tutores')">Tutores</button>
-            <button type="button" data-pagina="pets" onclick="mostrarPagina('pets')">Pets</button>
-            <button type="button" data-pagina="agendamentos" onclick="mostrarPagina('agendamentos')">Agendamentos</button>
+            <button type="button" class="ativo" data-pagina="inicio">Início</button>
+            <button type="button" data-pagina="tutores">Tutores</button>
+            <button type="button" data-pagina="pets">Pets</button>
+            <button type="button" data-pagina="agendamentos">Agendamentos</button>
         </nav>
 
         <div class="sidebar-note">
@@ -37,10 +37,11 @@
                 <h1>Sistema de Gestão Veterinária</h1>
                 <p>Bem-vindo de volta! Veja o que está acontecendo hoje.</p>
             </div>
-            <div class="header-profile" aria-label="Perfil da clínica">
+            <div class="header-profile" aria-label="Perfil do funcionário">
                 <span class="profile-avatar" aria-hidden="true">DM</span>
-                <span><strong>DogMania</strong><small>Administração</small></span>
+                <span><strong id="nome-funcionario">Funcionário</strong><small>Administração</small></span>
             </div>
+            <button id="sair" class="logout-button" type="button">Sair</button>
             <p id="api-status" class="api-status" role="status">Conectando ao backend...</p>
         </header>
 
@@ -50,7 +51,7 @@
                     <p class="eyebrow eyebrow-light">CUIDADO E CARINHO EM CADA DETALHE</p>
                     <h2>Um lugar melhor para cuidar.</h2>
                     <p>Organize a rotina da clínica e acompanhe cada paciente com todo o carinho que ele merece.</p>
-                    <button class="hero-button" type="button" onclick="mostrarPagina('agendamentos')">
+                    <button class="hero-button" type="button" data-pagina="agendamentos">
                         Ver agendamentos <span aria-hidden="true">→</span>
                     </button>
                 </div>

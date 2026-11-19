@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minha conta | DogMania</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="cliente.js" defer></script>
+</head>
+<body>
+    <aside class="sidebar">
+        <a class="brand" href="#inicio" data-client-page="inicio">
+            <span class="brand-icon" aria-hidden="true">🐾</span>
+            <span class="brand-copy"><strong>DogMania</strong><small>ÁREA DO CLIENTE</small></span>
+        </a>
+        <p class="nav-caption">MINHA CONTA</p>
+        <nav aria-label="Navegação da conta">
+            <button type="button" class="ativo" data-client-page="inicio">Meus dados</button>
+            <button type="button" data-client-page="pets">Meus pets</button>
+            <button type="button" data-client-page="agendamentos">Agendamentos</button>
+            <button type="button" id="sair">Sair</button>
+        </nav>
+        <div class="sidebar-note">
+            <span class="sidebar-note-icon" aria-hidden="true">♡</span>
+            <div><strong>Seu pet em boas mãos</strong><span>Conte com a equipe DogMania.</span></div>
+        </div>
+    </aside>
+    <main>
+        <header>
+            <div class="header-copy">
+                <p class="eyebrow">ÁREA DO CLIENTE</p>
+                <h1 id="titulo-cliente">Olá!</h1>
+                <p>Acompanhe seus dados, pets e consultas.</p>
+            </div>
+            <div class="header-profile" aria-label="Perfil do cliente">
+                <span class="profile-avatar" aria-hidden="true">♡</span>
+                <span><strong id="nome-cliente">Cliente</strong><small>Minha conta</small></span>
+            </div>
+            <p id="api-status" class="api-status" role="status">Conectando ao backend...</p>
+        </header>
+
+        <section id="inicio" class="client-page">
+            <div class="page-heading">
+                <span class="page-icon">♙</span>
+                <div><p class="eyebrow">MEUS DADOS</p><h2>Minha conta</h2><p>Atualize suas informações de contato.</p></div>
+            </div>
+            <form id="form-perfil">
+                <div class="form-grid">
+                    <div class="field"><label for="cliente-nome">Nome completo</label><input id="cliente-nome" name="nome" required></div>
+                    <div class="field"><label for="cliente-email">E-mail</label><input id="cliente-email" name="email" type="email" required></div>
+                    <div class="field"><label for="cliente-telefone">Telefone</label><input id="cliente-telefone" name="telefone" type="tel" required></div>
+                    <div class="form-actions"><button type="submit">Salvar meus dados <span aria-hidden="true">→</span></button></div>
+                </div>
+                <p class="mensagem" id="mensagem-perfil" role="status"></p>
+            </form>
+        </section>
+
+        <section id="pets" class="client-page escondido">
+            <div class="page-heading">
+                <span class="page-icon page-icon-pet">♡</span>
+                <div><p class="eyebrow">MEUS PACIENTES</p><h2>Meus pets</h2><p>Cadastre e acompanhe somente os seus animais.</p></div>
+            </div>
+            <form id="form-pet">
+                <div class="form-grid">
+                    <div class="field"><label for="pet-nome">Nome do animal</label><input id="pet-nome" name="nome" required></div>
+                    <div class="field"><label for="pet-especie">Espécie</label><input id="pet-especie" name="especie" placeholder="Ex.: Cachorro" required></div>
+                    <div class="field"><label for="pet-raca">Raça</label><input id="pet-raca" name="raca" placeholder="Ex.: Vira-lata"></div>
+                    <div class="form-actions"><button type="submit">Cadastrar pet <span aria-hidden="true">→</span></button></div>
+                </div>
+                <p class="mensagem" id="mensagem-pet" role="status"></p>
+            </form>
+            <div class="list-heading"><h3>Meus pets cadastrados</h3><span>Visíveis somente para sua conta</span></div>
+            <ul class="lista-registros" id="lista-pets"></ul>
+        </section>
+
+        <section id="agendamentos" class="client-page escondido">
+            <div class="page-heading">
+                <span class="page-icon page-icon-calendar">▦</span>
+                <div><p class="eyebrow">CUIDADO AGENDADO</p><h2>Meus agendamentos</h2><p>Solicite uma consulta ou acompanhe seus horários.</p></div>
+            </div>
+            <form id="form-agendamento">
+                <div class="form-grid">
+                    <div class="field"><label for="agendamento-pet">Meu pet</label><select id="agendamento-pet" name="petId" required></select></div>
+                    <div class="field"><label for="agendamento-data">Data</label><input id="agendamento-data" name="data" type="date" required></div>
+                    <div class="field"><label for="agendamento-hora">Horário</label><input id="agendamento-hora" name="horario" type="time" required></div>
+                    <div class="field"><label for="agendamento-motivo">Motivo do atendimento</label><input id="agendamento-motivo" name="motivo" placeholder="Ex.: Consulta de rotina" required></div>
+                    <div class="form-actions"><button type="submit">Solicitar agendamento <span aria-hidden="true">→</span></button></div>
+                </div>
+                <p class="mensagem" id="mensagem-agendamento" role="status"></p>
+            </form>
+            <div class="list-heading"><h3>Meus agendamentos</h3><span>Solicite o cancelamento quando necessário</span></div>
+            <ul class="lista-registros" id="lista-agendamentos"></ul>
+        </section>
+    </main>
+</body>
+</html>
